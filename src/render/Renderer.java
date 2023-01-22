@@ -11,6 +11,7 @@ import traingame.engine.render.SpriteBatch;
 import traingame.engine.render.Texture;
 import traingame.World;
 import shadowfox.math.*;
+import java.lang.Math.*;
 
 public class Renderer implements IFramebufferSizeListener {
     private final ShaderProgram shader2D = ShaderProgram.load("/shaders/2d.vsh", "/shaders/2d.fsh");
@@ -20,6 +21,14 @@ public class Renderer implements IFramebufferSizeListener {
     private final Texture mainMenuBackground = new Texture("main_menu_background.png");
     private int width;
     private int height;
+
+    //Adding Hexagon Terrain Support
+    private final Texture mountainTexture = new Texture("terrain/mountain.png");
+    private final Texture plainTexture = new Texture("terrain/plain.png");
+    private static final int HEX_SIZE_MULTIPLIER = 50; //TODO: ADJUST as needed/compute this based on
+    //other things such as amount of tiles along x and y.
+    private static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
+    private static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * (2/(Math.sqrt(3))));
 
     public Renderer() {
         // Enable alpha blending (over)
