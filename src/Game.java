@@ -38,6 +38,7 @@ public class Game implements ILoopable {
 
     public void enterWorld() {
         this.world = new World();
+        System.out.println("Initializing World Graphics...");
         initGraphical();
     }
 
@@ -102,6 +103,11 @@ public class Game implements ILoopable {
 
     public World getWorld() {
         return world;
+    }
+
+
+    public int getMapTotalTiles() {
+        return world.getMap()[0].length;
     }
 
     // In-game as opposed to in the starting menu

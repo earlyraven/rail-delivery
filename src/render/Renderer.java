@@ -12,6 +12,10 @@ import traingame.engine.render.Texture;
 import traingame.World;
 import shadowfox.math.*;
 import java.lang.Math.*;
+import traingame.Terrain;
+import java.awt.Graphics;
+import java.awt.Image;
+import javax.imageio.ImageIO;
 
 public class Renderer implements IFramebufferSizeListener {
     private final ShaderProgram shader2D = ShaderProgram.load("/shaders/2d.vsh", "/shaders/2d.fsh");
@@ -21,14 +25,23 @@ public class Renderer implements IFramebufferSizeListener {
     private final Texture mainMenuBackground = new Texture("main_menu_background.png");
     private int width;
     private int height;
+    //TODO make these proportional (Ex. 15% of screen to 85% of screen) or use them to adjust positioning.
+    private int mapCanvasWidth = width;
+    private int mapCanvasHeight = height;
 
     //Adding Hexagon Terrain Support
     private final Texture mountainTexture = new Texture("terrain/mountain.png");
     private final Texture plainTexture = new Texture("terrain/plain.png");
     private static final int HEX_SIZE_MULTIPLIER = 50; //TODO: ADJUST as needed/compute this based on
     //other things such as amount of tiles along x and y.
-    private static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
-    private static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * (2/(Math.sqrt(3))));
+//    public static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
+//    public static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * (2/(Math.sqrt(3))));
+
+//just use fixed numbers instead.
+    public static final int HEX_WIDTH = 75;
+    public static final int HEX_HEIGHT = 86;
+
+
 
     public Renderer() {
         // Enable alpha blending (over)
@@ -49,10 +62,34 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Render the world
         if (world != null) {
-            spriteBatch.setTexture(mapBackground);
+//            spriteBatch.setTexture(mapBackground);
+            spriteBatch.setTexture(mountainTexture);
             // TODO: Adjust so the aspect ratio is not distorted
-            spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
+//            spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
+//moved            spriteBatch.render();
+//            System.out.println("I'm in the world.");
+            int mapWidth = world.getMapWidth();
+            int mapHeight = world.getMapHeight();
+            System.out.println("The world is " + mapWidth + " by " + mapHeight + ".");
+            Terrain[][] map = world.getMap();
+            int tCount = 0;
+
+            for (int j = 0; j < map[0].length; j++) {
+                for (int i = 0; i < map.length; i++) {
+                    Terrain t = map[i][j];
+                    tCount++;
+                    System.out.println("(" + i + ", " + j + ")");
+                    System.out.println(map[i][j]);
+                    System.out.println("W:" + this.width + "H:" + this.height);
+                    int locX = world.getPixelX(i,j);
+                    int locY = world.getPixelY(i,j);
+                    System.out.println("(" + locX + ", " + locY + ")");
+                    spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
+                }
+            }
+            System.out.println(tCount);
             spriteBatch.render();
+
         }
         else {
             spriteBatch.setTexture(mainMenuBackground);
