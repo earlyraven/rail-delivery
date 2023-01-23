@@ -26,8 +26,9 @@ public class Renderer implements IFramebufferSizeListener {
     private int width;
     private int height;
     //TODO make these proportional (Ex. 15% of screen to 85% of screen) or use them to adjust positioning.
-    //private int mapCanvasWidth = width;
-    //private int mapCanvasHeight = height;
+    //To leave room on side for Contract Cards.
+//    private int mapCanvasWidth = width * 0.8;
+//    private int mapCanvasHeight = height * 1;
 
     //Adding Hexagon Terrain Support
     private final Texture mountainTexture = new Texture("terrain/mountain.png");
@@ -36,9 +37,9 @@ public class Renderer implements IFramebufferSizeListener {
     //TODO_A: ADJUST as needed/compute this based on other things such as amount of tiles along x and y.
     // or when resizing window.
     //TODO: may change these away from constants.
-    private static final int HEX_SIZE_MULTIPLIER = 32; //--TODO_A: ADJUST^^
-    public static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
-    public static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * Math.sqrt(4/3.));
+    public int hexSizeMultiplier = 32; //--TODO_A: ADJUST^^
+    public int hexWidth = (int)Math.round(hexSizeMultiplier * 1);
+    public int hexHeight = (int)Math.round(hexSizeMultiplier * Math.sqrt(4/3.));
 
     //Optional:  just use fixed numbers instead.
     // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
@@ -46,6 +47,11 @@ public class Renderer implements IFramebufferSizeListener {
     // for best results use ints that closely match this ratio.
 //    public static final int HEX_WIDTH = 32;
 //    public static final int HEX_HEIGHT = 37;
+
+    //TODO:  May need to adjust this as window resizes.
+    public double spacing = hexWidth/(int)18;
+    public double drawSizeFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
+
 
 
 
@@ -78,15 +84,15 @@ public class Renderer implements IFramebufferSizeListener {
             for (int j = 0; j < world.mapHeight; j++) {
                 for (int i = 0; i < world.mapWidth; i++) {
                     Terrain t = map[i][j];
-                    int locX = world.getPixelX(i,j);
-                    int locY = world.getPixelY(i,j);
+                    int locX = world.getPixelX(i,j,drawSizeFactor,spacing);
+                    int locY = world.getPixelY(i,j,drawSizeFactor,spacing);
                     if (map[i][j] == Terrain.MOUNTAIN){
                         spriteBatch.setTexture(mountainTexture);
-                        spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
+                        spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
                     }
                     else if (map[i][j] == Terrain.PLAIN){
                         spriteBatch.setTexture(plainTexture);
-                        spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
+                        spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
                     }
                     spriteBatch.render();
                 }
@@ -111,10 +117,24 @@ public class Renderer implements IFramebufferSizeListener {
         this.width = width;
         this.height = height;
 
+
+
         // This is the size of UI's canvas, so the scale is inversly proportional to actual element size
         float uiScale = (float)Overlay.getScale();
         uiDimensions.x = width * uiScale;
         uiDimensions.y = height * uiScale;
+    }
+ 
+    public int getHexSizeMultiplier(){
+        return hexSizeMultiplier;
+    }
+
+    public int getHexWidth(){
+        return hexWidth;
+    }
+
+    public int getHexHeight(){
+        return hexHeight;
     }
 
     public void enterWireframe() {

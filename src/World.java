@@ -15,9 +15,6 @@ public class World {
     public static final double R_BASIS_X = Math.sqrt(3)/2;
     public static final double R_BASIS_Y = 3./2;
 
-    //TODO:  May need to adjust this as window resizes.
-    public static final double SPACING = Renderer.HEX_WIDTH/(int)18;
-    public double drawSizeFactor = (1 / Math.sqrt(3)) * (Renderer.HEX_WIDTH + SPACING);
 
     public Terrain[][] map;
 
@@ -41,11 +38,11 @@ public class World {
         // of that of a rhombus.
         return q - (r / (int)2);
     }
-    public int getPixelX(int q, int r) {
+    public int getPixelX(int q, int r, double drawSizeFactor, double spacing) {
         return (int)Math.round(( drawSizeFactor * ( (adjustQ(q,r) * Q_BASIS_X) + (r * R_BASIS_X)) ) );
     }
 
-    public int getPixelY(int q, int r) {
+    public int getPixelY(int q, int r, double drawSizeFactor, double spacing) {
         return (int)Math.round(( drawSizeFactor * ( (adjustQ(q,r) * Q_BASIS_Y) + (r * R_BASIS_Y)) ) );
     }
 
