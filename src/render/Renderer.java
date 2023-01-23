@@ -26,20 +26,26 @@ public class Renderer implements IFramebufferSizeListener {
     private int width;
     private int height;
     //TODO make these proportional (Ex. 15% of screen to 85% of screen) or use them to adjust positioning.
-    private int mapCanvasWidth = width;
-    private int mapCanvasHeight = height;
+    //private int mapCanvasWidth = width;
+    //private int mapCanvasHeight = height;
 
     //Adding Hexagon Terrain Support
     private final Texture mountainTexture = new Texture("terrain/mountain.png");
     private final Texture plainTexture = new Texture("terrain/plain.png");
-    private static final int HEX_SIZE_MULTIPLIER = 50; //TODO: ADJUST as needed/compute this based on
-    //other things such as amount of tiles along x and y.
-//    public static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
-//    public static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * (2/(Math.sqrt(3))));
 
-//just use fixed numbers instead.
-    public static final int HEX_WIDTH = 75;
-    public static final int HEX_HEIGHT = 86;
+    //TODO_A: ADJUST as needed/compute this based on other things such as amount of tiles along x and y.
+    // or when resizing window.
+    //TODO: may change these away from constants.
+    private static final int HEX_SIZE_MULTIPLIER = 32; //--TODO_A: ADJUST^^
+    public static final int HEX_WIDTH = (int)Math.round(HEX_SIZE_MULTIPLIER * 1);
+    public static final int HEX_HEIGHT = (int)Math.round(HEX_SIZE_MULTIPLIER * Math.sqrt(4/3.));
+
+    //Optional:  just use fixed numbers instead.
+    // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
+    // or more exactly:  1:sqrt(4/3)
+    // for best results use ints that closely match this ratio.
+//    public static final int HEX_WIDTH = 32;
+//    public static final int HEX_HEIGHT = 37;
 
 
 
@@ -62,34 +68,29 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Render the world
         if (world != null) {
-//            spriteBatch.setTexture(mapBackground);
-            spriteBatch.setTexture(mountainTexture);
+            spriteBatch.setTexture(mapBackground);
             // TODO: Adjust so the aspect ratio is not distorted
-//            spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
-//moved            spriteBatch.render();
-//            System.out.println("I'm in the world.");
-            int mapWidth = world.getMapWidth();
-            int mapHeight = world.getMapHeight();
-            System.out.println("The world is " + mapWidth + " by " + mapHeight + ".");
-            Terrain[][] map = world.getMap();
-            int tCount = 0;
-
-            for (int j = 0; j < map[0].length; j++) {
-                for (int i = 0; i < map.length; i++) {
-                    Terrain t = map[i][j];
-                    tCount++;
-                    System.out.println("(" + i + ", " + j + ")");
-                    System.out.println(map[i][j]);
-                    System.out.println("W:" + this.width + "H:" + this.height);
-                    int locX = world.getPixelX(i,j);
-                    int locY = world.getPixelY(i,j);
-                    System.out.println("(" + locX + ", " + locY + ")");
-                    spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
-                }
-            }
-            System.out.println(tCount);
+            spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
             spriteBatch.render();
 
+            Terrain[][] map = world.getMap();
+
+            for (int j = 0; j < world.mapHeight; j++) {
+                for (int i = 0; i < world.mapWidth; i++) {
+                    Terrain t = map[i][j];
+                    int locX = world.getPixelX(i,j);
+                    int locY = world.getPixelY(i,j);
+                    if (map[i][j] == Terrain.MOUNTAIN){
+                        spriteBatch.setTexture(mountainTexture);
+                        spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
+                    }
+                    else if (map[i][j] == Terrain.PLAIN){
+                        spriteBatch.setTexture(plainTexture);
+                        spriteBatch.blitScaled(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
+                    }
+                    spriteBatch.render();
+                }
+            }
         }
         else {
             spriteBatch.setTexture(mainMenuBackground);
