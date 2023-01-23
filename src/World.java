@@ -6,10 +6,10 @@ import traingame.render.Renderer;
 public class World {
 
 //TODO:REVERT back to more reasonable values after testing.
-//    public final int mapWidth = 73;
-//    public final int mapHeight = 44;
-    public final int mapWidth = 50;
-    public final int mapHeight = 36;
+//    public static final int mapWidth = 73;
+//    public static final int mapHeight = 54;
+    public static final int mapWidth = 50;
+    public static final int mapHeight = 36;
     public static final double Q_BASIS_X = Math.sqrt(3);
     public static final double Q_BASIS_Y = 0;
     public static final double R_BASIS_X = Math.sqrt(3)/2;

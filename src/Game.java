@@ -38,6 +38,7 @@ public class Game implements ILoopable {
 
     public void enterWorld() {
         this.world = new World();
+        System.out.println("Creating world of size: (" + World.mapWidth + ", " + World.mapHeight + ")");
         System.out.println("Initializing World Graphics...");
         initGraphical();
     }

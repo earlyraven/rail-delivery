@@ -25,34 +25,10 @@ public class Renderer implements IFramebufferSizeListener {
     private final Texture mainMenuBackground = new Texture("main_menu_background.png");
     private int width;
     private int height;
-    //TODO make these proportional (Ex. 15% of screen to 85% of screen) or use them to adjust positioning.
-    //To leave room on side for Contract Cards.
-//    private int mapCanvasWidth = width * 0.8;
-//    private int mapCanvasHeight = height * 1;
 
     //Adding Hexagon Terrain Support
     private final Texture mountainTexture = new Texture("terrain/mountain.png");
     private final Texture plainTexture = new Texture("terrain/plain.png");
-
-    //TODO_A: ADJUST as needed/compute this based on other things such as amount of tiles along x and y.
-    // or when resizing window.
-    //TODO: may change these away from constants.
-    public int hexSizeMultiplier = 32; //--TODO_A: ADJUST^^
-    public int hexWidth = (int)Math.round(hexSizeMultiplier * 1);
-    public int hexHeight = (int)Math.round(hexSizeMultiplier * Math.sqrt(4/3.));
-
-    //Optional:  just use fixed numbers instead.
-    // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
-    // or more exactly:  1:sqrt(4/3)
-    // for best results use ints that closely match this ratio.
-//    public static final int HEX_WIDTH = 32;
-//    public static final int HEX_HEIGHT = 37;
-
-    //TODO:  May need to adjust this as window resizes.
-    public double spacing = hexWidth/(int)18;
-    public double drawSizeFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
-
-
 
 
     public Renderer() {
@@ -65,6 +41,35 @@ public class Renderer implements IFramebufferSizeListener {
     }
 
     public void render(float lerp, World world, Overlay overlay) {
+        //To leave room on side for Contract Cards.
+        double fillFactorW = 0.8; //To fill as much of the screen uniformly as possible change to 1.
+        //TODO: When updating to spritesheet, fix remainder pixels issue.  Stretch the spritesheet.
+        double fillFactorH = 1;
+        int spacingPixels = width / 800;
+
+        // Note:
+        // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
+        // or more exactly:  1:sqrt(4/3)
+        // for best results use ints that closely match this ratio.
+        int hexSizeMultiplierW = (int)(fillFactorW*Math.floor((this.width - World.mapWidth*spacingPixels) /(World.mapWidth + 0.5)));
+        int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) /(World.mapHeight*World.R_BASIS_Y*(1/World.R_BASIS_X))));
+
+        //TODO: Use this to maintain aspect ratio.
+//        int hexSizeMultiplier = Math.max(hexSizeMultiplierW, hexSizeMultiplierH);
+//  Additional code needed.
+
+//        hexSizeMultiplierH not working properly, just using hexSizeMultiplierW for now.
+        hexSizeMultiplierH = hexSizeMultiplierW;
+
+        int hexWidth = (int)Math.round(hexSizeMultiplierW * 1);
+        int hexHeight = (int)Math.round(hexSizeMultiplierH * Math.sqrt(4/3.));
+
+        //POSSIBLE_BUG? This only updates when window width gets resized, but not when height does.
+//        System.out.println("(" + hexWidth + ", " + hexHeight + ")");
+
+        int spacing = spacingPixels;
+        double drawSizeFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
+
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
         // Set up for two-dimensional rendering
@@ -117,24 +122,10 @@ public class Renderer implements IFramebufferSizeListener {
         this.width = width;
         this.height = height;
 
-
-
         // This is the size of UI's canvas, so the scale is inversly proportional to actual element size
         float uiScale = (float)Overlay.getScale();
         uiDimensions.x = width * uiScale;
         uiDimensions.y = height * uiScale;
-    }
- 
-    public int getHexSizeMultiplier(){
-        return hexSizeMultiplier;
-    }
-
-    public int getHexWidth(){
-        return hexWidth;
-    }
-
-    public int getHexHeight(){
-        return hexHeight;
     }
 
     public void enterWireframe() {
