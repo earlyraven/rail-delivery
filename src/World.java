@@ -8,10 +8,8 @@ public class World {
 //TODO:REVERT back to more reasonable values after testing.
 //    public static final int mapWidth = 73;
 //    public static final int mapHeight = 54;
-//    public final int mapWidth = 50;
-//    public final int mapHeight = 36;
-    public final int mapWidth = 22;
-    public final int mapHeight = 15;
+    public final int mapWidth = 50;
+    public final int mapHeight = 36;
 
     //TODO:  (Tiff: public Terrain[][] map; That should be private or protected)
     // -- will need to change other things to accomodate that.

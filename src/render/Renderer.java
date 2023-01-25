@@ -29,8 +29,6 @@ public class Renderer implements IFramebufferSizeListener {
     private final double Q_BASIS_Y = 0;
     private final double R_BASIS_X = Math.sqrt(3)/2;
     private final double R_BASIS_Y = 3./2;
-    private final double OUTER_RADIUS = 1;
-    private double HEX_DISTORTION_RATIO_X_TO_Y = 1;
 
     //Adding Hexagon Terrain Support
     private final Texture mountainTexture = new Texture("terrain/mountain.png");
@@ -61,15 +59,6 @@ public class Renderer implements IFramebufferSizeListener {
         return (int)Math.round(( drawSizeFactor * ( (adjustQ(q,r) * Q_BASIS_Y) + (r * R_BASIS_Y)) ) );
     }
 
-    //TODO: these will replace the above (or call the above)
-    // public int getPixelXScaled(int q, int r, double drawSizeXFactor, double spacing) {
-    //     return (int)Math.round(( drawSizeXFactor * ( (adjustQ(q,r) * Q_BASIS_X) + (r * R_BASIS_X)) ) );
-    // }
-
-    // public int getPixelYScaled(int q, int r, double drawSizeYFactor, double spacing) {
-    //     return (int)Math.round(( drawSizeYFactor * ( (adjustQ(q,r) * Q_BASIS_Y) + (r * R_BASIS_Y)) ) );
-    // }
-
 
     public void render(float lerp, World world, Overlay overlay) {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -83,8 +72,7 @@ public class Renderer implements IFramebufferSizeListener {
         if (world != null) {
 
             //To leave room on side for Contract Cards.
-//            double fillFactorW = 0.8; //To fill as much of the screen uniformly as possible change to 1.
-            double fillFactorW = 1; //To fill as much of the screen uniformly as possible change to 1.
+            double fillFactorW = 0.8; //To fill as much of the screen uniformly as possible change to 1.
             //TODO: When updating to spritesheet, fix remainder pixels issue.  Stretch the spritesheet.
             double fillFactorH = 1;
             int spacingPixels = width / 800;
@@ -93,44 +81,25 @@ public class Renderer implements IFramebufferSizeListener {
             // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
             // or more exactly:  1:sqrt(4/3)
             // for best results use ints that closely match this ratio.
-//            int hexSizeMultiplierW = (int)(fillFactorW*Math.floor((this.width - world.mapWidth*spacingPixels) /(world.mapWidth + 0.5)));
-////            int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) /(world.mapHeight*R_BASIS_Y*(1/R_BASIS_X))));
-//            int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) / (0.75 * world.mapHeight * OUTER_RADIUS)));
-
-
-            int hexWidth = (int)(fillFactorW*Math.floor((this.width - world.mapWidth*spacingPixels) /(world.mapWidth + 0.5)));
-//            int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) /(world.mapHeight*R_BASIS_Y*(1/R_BASIS_X))));
-//            int hexHeight = (int)(fillFactorH*Math.floor((this.height) / (0.75 * world.mapHeight * OUTER_RADIUS)));
-            int hexHeight = (int)(fillFactorH*Math.floor((this.height) /(world.mapHeight*R_BASIS_Y*(1/R_BASIS_X))));
-
-            double scaleFactorXtoY = hexWidth / (double)hexHeight;
-            System.out.println("SF: " + scaleFactorXtoY);
-            hexHeight = (int)Math.round((hexHeight * (1/scaleFactorXtoY)));
-
-
-
-//            System.out.println("(" + hexSizeMultiplierW + ", " + hexSizeMultiplierH + ")");
-            System.out.println("(" + hexWidth + ", " + hexHeight + ")");
+            int hexSizeMultiplierW = (int)(fillFactorW*Math.floor((this.width - world.mapWidth*spacingPixels) /(world.mapWidth + 0.5)));
+            int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) /(world.mapHeight*R_BASIS_Y*(1/R_BASIS_X))));
 
             //TODO: Use this to maintain aspect ratio.
     //        int hexSizeMultiplier = Math.max(hexSizeMultiplierW, hexSizeMultiplierH);
     //        Additional code needed.
 
     //        hexSizeMultiplierH not working properly, just using hexSizeMultiplierW for now.
-//            hexSizeMultiplierH = hexSizeMultiplierW;
+            hexSizeMultiplierH = hexSizeMultiplierW;
 
-//            int hexWidth = (int)Math.round(hexSizeMultiplierW * 1);
-//            int hexHeight = (int)Math.round(hexSizeMultiplierH * 1);
-
-//            int hexHeight = (int)Math.round(hexSizeMultiplierH * Math.sqrt(4/3.));
+            int hexWidth = (int)Math.round(hexSizeMultiplierW * 1);
+            int hexHeight = (int)Math.round(hexSizeMultiplierH * Math.sqrt(4/3.));
 
             //POSSIBLE_BUG? This only updates when window width gets resized, but not when height does.
     //        System.out.println("(" + hexWidth + ", " + hexHeight + ")");
 
             int spacing = spacingPixels;
             double drawSizeFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
-//            double drawSizeXFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
-//            double drawSizeYFactor = (1 / Math.sqrt(3)) * (hexHeight);
+
 
             spriteBatch.setTexture(mapBackground);
             // TODO: Adjust so the aspect ratio is not distorted
@@ -144,8 +113,6 @@ public class Renderer implements IFramebufferSizeListener {
                     Terrain t = map[x][y];
                     int locX = getPixelX(x,y,drawSizeFactor,spacing);
                     int locY = getPixelY(x,y,drawSizeFactor,spacing);
-//                    int locX = getPixelX(x,y,drawSizeXFactor,spacing);
-//                    int locY = getPixelY(x,y,drawSizeYFactor,spacing);
                     if (map[x][y] == Terrain.MOUNTAIN){
                         spriteBatch.setTexture(mountainTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
