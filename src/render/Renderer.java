@@ -13,9 +13,6 @@ import traingame.World;
 import shadowfox.math.*;
 import java.lang.Math.*;
 import traingame.Terrain;
-import java.awt.Graphics;
-import java.awt.Image;
-import javax.imageio.ImageIO;
 
 public class Renderer implements IFramebufferSizeListener {
     private final ShaderProgram shader2D = ShaderProgram.load("/shaders/2d.vsh", "/shaders/2d.fsh");
