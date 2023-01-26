@@ -92,25 +92,21 @@ public class Renderer implements IFramebufferSizeListener {
             spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
             spriteBatch.render();
 
-            int hexWidth = this.hexWidth;
-            int hexHeight = this.hexHeight;
-            int spacing = this.spacing;
-            double drawSizeFactor = this.drawSizeFactor;
-
             for (int y = 0; y < world.mapHeight; y++) {
                 for (int x = 0; x < world.mapWidth; x++) {
-                    Terrain t = world.getTerrain(x,y);
+                    Terrain terrain = world.getTerrain(x,y);
                     int locX = getPixelX(x,y,drawSizeFactor,spacing);
                     int locY = getPixelY(x,y,drawSizeFactor,spacing);
-                    if (world.getTerrain(x,y) == Terrain.MOUNTAIN){
+
+                    if (terrain == Terrain.MOUNTAIN){
                         spriteBatch.setTexture(mountainTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
                     }
-                    else if (world.getTerrain(x,y) == Terrain.PLAIN){
+                    else if (terrain == Terrain.PLAIN){
                         spriteBatch.setTexture(plainTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
                     }
-                    else if (world.getTerrain(x,y) == Terrain.FOREST){
+                    else if (terrain == Terrain.FOREST){
                         spriteBatch.setTexture(forestTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, forestTexture.getWidth(), forestTexture.getHeight());
                     }
@@ -137,7 +133,7 @@ public class Renderer implements IFramebufferSizeListener {
         this.width = width;
         this.height = height;
 
-        // This is the size of UI's canvas, so the scale is inversly proportional to actual element size
+        // This is the size of UI's canvas, so the scale is inversely proportional to actual element size
         float uiScale = (float)Overlay.getScale();
         uiDimensions.x = width * uiScale;
         uiDimensions.y = height * uiScale;

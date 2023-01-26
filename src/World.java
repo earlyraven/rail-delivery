@@ -5,6 +5,7 @@ import traingame.render.Renderer;
 
 public class World {
 
+    //Set parameters for map size in amount of hexagonal tiles in each dimension.
     //This (73 by 46) fills a 1080p monitor we may wish to adjust size to accomodate mission cards. 
     public final int mapWidth = 73;
     public final int mapHeight = 46;
@@ -28,9 +29,6 @@ public class World {
     }
 
     public Terrain getTerrain(int x, int y) {
-        // TODO: Conversion code according to -- I think this is done.  We can remove this comment now, right?
-        // https://www.redblobgames.com/grids/hexagons/#map-storage
-        // (rectangular, array of arrays)
         return map[x][y];
     }
 
