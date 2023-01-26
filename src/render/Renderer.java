@@ -35,6 +35,20 @@ public class Renderer implements IFramebufferSizeListener {
     private final Texture plainTexture = new Texture("terrain/plain.png");
     private final Texture forestTexture = new Texture("terrain/forest.png");
 
+    // Note:
+    // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
+    // or more exactly:  1:sqrt(4/3)
+    // for best results use ints that closely match this ratio.
+    //(This ends up as a 24 and 28 pair) (40 and 46 would be even closer, though might be too big)
+    private int hexWidth = 24;
+    private int hexHeight = (int)Math.round(hexWidth * Math.sqrt(4/3.));
+
+    //or change to 0 to remove spacing, although that looks ugly.
+    //Alternately, perhaps images used should just have a few blank pixels along edges.
+    private int spacing = (int)Math.round((1*Math.min(hexWidth, hexHeight) / 10.));
+
+    private double drawSizeFactor = (1 / Q_BASIS_X) * (hexWidth + spacing);
+
 
     public Renderer() {
         // Enable alpha blending (over)
@@ -45,20 +59,23 @@ public class Renderer implements IFramebufferSizeListener {
         GL11.glClearColor(1f, 1f, 1f, 1f);
     }
 
-    public int adjustQ(int q, int r) {
-        // Adjusts the index of q so that it will be mapped in a rectangular shape instead
-        // of that of a rhombus.
-        return q - (r / (int)2);
+    // q is used to find the pixel coordinates for rectangular mapping of x and y using the below formulas/functions.
+    public int getQ(int x, int y) {
+        return x - (y / 2);
+    }    
+    //r is simply the same as y.
+
+    public int getPixelX(int x, int y, double drawSizeFactor, double spacing) {
+        return (int)Math.round(( drawSizeFactor * ( (getQ(x,y) * Q_BASIS_X) + (y * R_BASIS_X)) ) );
     }
 
-    public int getPixelX(int q, int r, double drawSizeFactor, double spacing) {
-        return (int)Math.round(( drawSizeFactor * ( (adjustQ(q,r) * Q_BASIS_X) + (r * R_BASIS_X)) ) );
+    public int getPixelY(int x, int y, double drawSizeFactor, double spacing) {
+        return (int)Math.round(( drawSizeFactor * ( (getQ(x,y) * Q_BASIS_Y) + (y * R_BASIS_Y)) ) );
     }
 
-    public int getPixelY(int q, int r, double drawSizeFactor, double spacing) {
-        return (int)Math.round(( drawSizeFactor * ( (adjustQ(q,r) * Q_BASIS_Y) + (r * R_BASIS_Y)) ) );
+    public String getPrintableHexSize() {
+        return "(" + hexWidth + ", " + hexHeight + ")";
     }
-
 
     public void render(float lerp, World world, Overlay overlay) {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -70,58 +87,30 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Render the world
         if (world != null) {
-
-            //To leave room on side for Contract Cards.
-            double fillFactorW = 0.8; //To fill as much of the screen uniformly as possible change to 1.
-            //TODO: When updating to spritesheet, fix remainder pixels issue.  Stretch the spritesheet.
-            double fillFactorH = 1;
-            int spacingPixels = width / 800;
-
-            // Note:
-            // width-to-height ratio of a regular hexagon (pointy top) is 1:1.1547005383792515290182975610039.
-            // or more exactly:  1:sqrt(4/3)
-            // for best results use ints that closely match this ratio.
-            int hexSizeMultiplierW = (int)(fillFactorW*Math.floor((this.width - world.mapWidth*spacingPixels) /(world.mapWidth + 0.5)));
-            int hexSizeMultiplierH = (int)(fillFactorH*Math.floor((this.height) /(world.mapHeight*R_BASIS_Y*(1/R_BASIS_X))));
-
-            //TODO: Use this to maintain aspect ratio.
-    //        int hexSizeMultiplier = Math.max(hexSizeMultiplierW, hexSizeMultiplierH);
-    //        Additional code needed.
-
-    //        hexSizeMultiplierH not working properly, just using hexSizeMultiplierW for now.
-            hexSizeMultiplierH = hexSizeMultiplierW;
-
-            int hexWidth = (int)Math.round(hexSizeMultiplierW * 1);
-            int hexHeight = (int)Math.round(hexSizeMultiplierH * Math.sqrt(4/3.));
-
-            //POSSIBLE_BUG? This only updates when window width gets resized, but not when height does.
-    //        System.out.println("(" + hexWidth + ", " + hexHeight + ")");
-
-            int spacing = spacingPixels;
-            double drawSizeFactor = (1 / Math.sqrt(3)) * (hexWidth + spacing);
-
-
             spriteBatch.setTexture(mapBackground);
             // TODO: Adjust so the aspect ratio is not distorted
             spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
             spriteBatch.render();
 
-            Terrain[][] map = world.map;
+            int hexWidth = this.hexWidth;
+            int hexHeight = this.hexHeight;
+            int spacing = this.spacing;
+            double drawSizeFactor = this.drawSizeFactor;
 
             for (int y = 0; y < world.mapHeight; y++) {
                 for (int x = 0; x < world.mapWidth; x++) {
-                    Terrain t = map[x][y];
+                    Terrain t = world.getTerrain(x,y);
                     int locX = getPixelX(x,y,drawSizeFactor,spacing);
                     int locY = getPixelY(x,y,drawSizeFactor,spacing);
-                    if (map[x][y] == Terrain.MOUNTAIN){
+                    if (world.getTerrain(x,y) == Terrain.MOUNTAIN){
                         spriteBatch.setTexture(mountainTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
                     }
-                    else if (map[x][y] == Terrain.PLAIN){
+                    else if (world.getTerrain(x,y) == Terrain.PLAIN){
                         spriteBatch.setTexture(plainTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
                     }
-                    else if (map[x][y] == Terrain.FOREST){
+                    else if (world.getTerrain(x,y) == Terrain.FOREST){
                         spriteBatch.setTexture(forestTexture);
                         spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, forestTexture.getWidth(), forestTexture.getHeight());
                     }

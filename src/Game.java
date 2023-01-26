@@ -34,6 +34,7 @@ public class Game implements ILoopable {
             this.input.updateConnectedGamepads();
         }
         this.world = null;
+        System.out.println("Initializing with hexagon size: " + renderer.getPrintableHexSize());
     }
 
     public void enterWorld() {

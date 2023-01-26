@@ -5,20 +5,15 @@ import traingame.render.Renderer;
 
 public class World {
 
-//TODO:REVERT back to more reasonable values after testing.
-//    public static final int mapWidth = 73;
-//    public static final int mapHeight = 54;
-    public final int mapWidth = 50;
-    public final int mapHeight = 36;
+    //This (73 by 46) fills a 1080p monitor we may wish to adjust size to accomodate mission cards. 
+    public final int mapWidth = 73;
+    public final int mapHeight = 46;
 
-    //TODO:  (Tiff: public Terrain[][] map; That should be private or protected)
-    // -- will need to change other things to accomodate that.
-    public Terrain[][] map;
+    private Terrain[][] map;
 
     public World() {
         // This uses x, y but could instead use row, col if you transpose the array
         map = new Terrain[mapWidth][mapHeight];
-
 
         //TODO: read values from a text file or make a better random map alogrithm.
         for (int x = 0; x < mapWidth; ++x) {
@@ -32,11 +27,11 @@ public class World {
         }
     }
 
-    public Terrain getTerrain(int q, int r) {
-        // TODO: Conversion code according to 
+    public Terrain getTerrain(int x, int y) {
+        // TODO: Conversion code according to -- I think this is done.  We can remove this comment now, right?
         // https://www.redblobgames.com/grids/hexagons/#map-storage
         // (rectangular, array of arrays)
-        return map[q][r];
+        return map[x][y];
     }
 
     public void update() {
