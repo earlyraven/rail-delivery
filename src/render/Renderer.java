@@ -104,10 +104,10 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Render UI
         shader2D.setUniform("dimensions", uiDimensions);
-        shader2D.setUniform("left_margin", 0);
-        shader2D.setUniform("right_margin", 0);
-        shader2D.setUniform("top_margin", 0);
-        shader2D.setUniform("bottom_margin", 0);
+        shader2D.setFloat("left_margin", 0);
+        shader2D.setFloat("right_margin", 0);
+        shader2D.setFloat("top_margin", 0);
+        shader2D.setFloat("bottom_margin", 0);
         overlay.render(spriteBatch, uiDimensions);
     }
 
@@ -125,10 +125,10 @@ public class Renderer implements IFramebufferSizeListener {
         }
 
         shader2D.setUniform("dimensions", new Vector2f(MAP_PIXELS_WIDE, MAP_PIXELS_HIGH));
-        shader2D.setUniform("left_margin", (reservedLeft + widthDiff / 2) / uiDimensions.x);
-        shader2D.setUniform("right_margin", (widthDiff - (widthDiff / 2)) / uiDimensions.x);
-        shader2D.setUniform("top_margin", heightDiff / 2 / uiDimensions.y);
-        shader2D.setUniform("bottom_margin", (heightDiff - heightDiff / 2 + reservedBottom) / uiDimensions.y);
+        shader2D.setFloat("left_margin", (reservedLeft + widthDiff / 2) / uiDimensions.x);
+        shader2D.setFloat("right_margin", (widthDiff - (widthDiff / 2)) / uiDimensions.x);
+        shader2D.setFloat("top_margin", heightDiff / 2 / uiDimensions.y);
+        shader2D.setFloat("bottom_margin", (heightDiff - heightDiff / 2 + reservedBottom) / uiDimensions.y);
 
 
         spriteBatch.setTexture(mapBackground);
