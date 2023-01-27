@@ -19,6 +19,8 @@ public class Renderer implements IFramebufferSizeListener {
     private final Vector2f uiDimensions = new Vector2f(1, 1);
     private final SpriteBatch spriteBatch = new SpriteBatch();
     private final Texture mapBackground = new Texture("map_background.png");
+    private final int MAP_PIXELS_WIDE = mapBackground.getWidth();
+    private final int MAP_PIXELS_HIGH = mapBackground.getHeight();
     private final Texture mainMenuBackground = new Texture("main_menu_background.png");
     private int width;
     private int height;
@@ -79,37 +81,20 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Set up for two-dimensional rendering
         shader2D.use();
-        shader2D.setUniform("dimensions", uiDimensions);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
 
         // Render the world
         if (world != null) {
-            spriteBatch.setTexture(mapBackground);
-            // TODO: Adjust so the aspect ratio is not distorted
-            spriteBatch.blitScaled(0, 0, width, height, 0, 0, mapBackground.getWidth(), mapBackground.getHeight());
-            spriteBatch.render();
-
-            for (int y = 0; y < world.mapHeight; y++) {
-                for (int x = 0; x < world.mapWidth; x++) {
-                    Terrain terrain = world.getTerrain(x,y);
-                    int locX = getPixelX(x,y,drawSizeFactor,spacing);
-                    int locY = getPixelY(x,y,drawSizeFactor,spacing);
-
-                    if (terrain == Terrain.MOUNTAIN){
-                        spriteBatch.setTexture(mountainTexture);
-                        spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
-                    }
-                    else if (terrain == Terrain.PLAIN){
-                        spriteBatch.setTexture(plainTexture);
-                        spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
-                    }
-                    else if (terrain == Terrain.FOREST){
-                        spriteBatch.setTexture(forestTexture);
-                        spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, forestTexture.getWidth(), forestTexture.getHeight());
-                    }
-                    spriteBatch.render();
-                }
+            int reservedLeft = 0;
+            int reservedBottom = 0;
+            // Temporary test code to see what moving the UI location would look like
+            if ((double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH < (double)width / height) {
+                reservedLeft = 200;
             }
+            else {
+                reservedBottom = 200;
+            }
+            renderWorld(lerp, world, reservedLeft, reservedBottom);
         }
         else {
             spriteBatch.setTexture(mainMenuBackground);
@@ -118,7 +103,59 @@ public class Renderer implements IFramebufferSizeListener {
         }
 
         // Render UI
+        shader2D.setUniform("dimensions", uiDimensions);
+        shader2D.setUniform("left_margin", 0);
+        shader2D.setUniform("right_margin", 0);
+        shader2D.setUniform("top_margin", 0);
+        shader2D.setUniform("bottom_margin", 0);
         overlay.render(spriteBatch, uiDimensions);
+    }
+
+    private void renderWorld(float lerp, World world, int reservedLeft, int reservedBottom) {
+        int mapScreenWidth = width - reservedLeft;
+        int mapScreenHeight = height - reservedBottom;
+        int widthDiff = 0;
+        int heightDiff = 0;
+        double aspectRatio = (double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH;
+        if (aspectRatio > (double)mapScreenWidth / mapScreenHeight) {
+            heightDiff = mapScreenHeight - (int)(mapScreenWidth / aspectRatio);
+        }
+        else {
+            widthDiff = mapScreenWidth - (int)(aspectRatio * mapScreenHeight);
+        }
+
+        shader2D.setUniform("dimensions", new Vector2f(MAP_PIXELS_WIDE, MAP_PIXELS_HIGH));
+        shader2D.setUniform("left_margin", (reservedLeft + widthDiff / 2) / uiDimensions.x);
+        shader2D.setUniform("right_margin", (widthDiff - (widthDiff / 2)) / uiDimensions.x);
+        shader2D.setUniform("top_margin", heightDiff / 2 / uiDimensions.y);
+        shader2D.setUniform("bottom_margin", (heightDiff - heightDiff / 2 + reservedBottom) / uiDimensions.y);
+
+
+        spriteBatch.setTexture(mapBackground);
+        spriteBatch.blit(0, 0, MAP_PIXELS_WIDE, MAP_PIXELS_HIGH, mapBackground.getWidth(), mapBackground.getHeight());
+        spriteBatch.render();
+
+        for (int y = 0; y < world.mapHeight; y++) {
+            for (int x = 0; x < world.mapWidth; x++) {
+                Terrain terrain = world.getTerrain(x,y);
+                int locX = getPixelX(x,y,drawSizeFactor,spacing);
+                int locY = getPixelY(x,y,drawSizeFactor,spacing);
+
+                if (terrain == Terrain.MOUNTAIN){
+                    spriteBatch.setTexture(mountainTexture);
+                    spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, mountainTexture.getWidth(), mountainTexture.getHeight());
+                }
+                else if (terrain == Terrain.PLAIN){
+                    spriteBatch.setTexture(plainTexture);
+                    spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, plainTexture.getWidth(), plainTexture.getHeight());
+                }
+                else if (terrain == Terrain.FOREST){
+                    spriteBatch.setTexture(forestTexture);
+                    spriteBatch.blitScaled(locX, locY, hexWidth, hexHeight, 0, 0, forestTexture.getWidth(), forestTexture.getHeight());
+                }
+                spriteBatch.render();
+            }
+        }
     }
 
     @Override
