@@ -1,101 +1,85 @@
 package traingame;
 
-import traingame.Terrain;
-import traingame.render.Renderer;
-
-import traingame.Product;
-import traingame.City;
-import traingame.CargoOrder;
-
 import traingame.engine.Log;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
     public final int mapWidth = 31;
     public final int mapHeight = 34;
 
-    //World related info (Cities, Products, etc.)
-
-    //TODO: This will come from a csv file or other text file.
-    String[] cityNames = {
-        "New York, NY",
-        "Chicago, IL",
-        "Philadelphia, PA",
-        "Detroit, MI"
-    };
-
-    int cityCount = cityNames.length;
-
-    //TODO: This will come from a csv file or other text file.
-    Point[][] pointsForCities = {
-        {new Point(5,6), new Point(5,7), new Point(6,6)},
-        {new Point(12,15)},
-        {new Point(2,9)},
-        {new Point(9,9), new Point(9,10)}
-    };
-
-    //TODO: This will come from a csv file or other text file.
-    Product[][] productsProducedByCities = {
-        {Product.IRON, Product.STEEL},
-        {Product.CORN, Product.STEEL},
-        {Product.IRON, Product.FISH},
-        {Product.SOYBEAN_OIL, Product.CORN}
-    };
-
-    //TODO: Make a text file from which to retrieve and initialize the city and product info for the above.
-
+    //Retrieve file that stores world related info (Cities, Products, etc.)
+    public String mapDataFile = "./assets/data/map-EasternUS.txt";
     private Terrain[][] map;
 
     public World() {
+        List<String> cityNames = readIndexInfoOfMapDataFile(mapDataFile, 0);
+        int cityCount = cityNames.size();
+        List<String> exportNames = readIndexInfoOfMapDataFile(mapDataFile, 1);
+        List<String> positionsString = readIndexInfoOfMapDataFile(mapDataFile, 2);
+        List<Product> cityExports = new ArrayList<Product>();
 
-        Log.debug("City count: " + String.valueOf(cityCount));
-        Log.debug("TA: " + String.valueOf(cityCount));
-        Log.debug("TB: " + String.valueOf(pointsForCities.length));
-        Log.debug("TC: " + String.valueOf(productsProducedByCities.length));
-        //TODO: FIX: This conditional restraint isn't written properly and causes compile error.
-//        Log.debug("COMPARE TA and TB" + String.equals(String.valueOf(cityCount),String.pointsForCities.length).toString());
-//        if (!((cityCount == pointsForCities.length) && (cityCount == productsProducedByCities.length))){
-//            throw new Exception("Generic this shouldn't happen.  Please make sure array lengths for city names, points for cities, and products produced by cities are all equal.");
-//        }
-        Log.debug("");
-        Log.debug("");
-
-
-        City[] citiesOnMap = new City[cityCount];
-        for (int i=0; i<cityCount; i++){
-            citiesOnMap[i] = new City(cityNames[i], productsProducedByCities[i], pointsForCities[i]);
+        for (String export : exportNames){
+            cityExports.add(Product.valueOf(export.replace(" ", "_").toUpperCase()));
         }
 
-        int chosenCity = 3;
-
-        int productsInChosenCity = citiesOnMap[chosenCity].products().length;
-        Log.debug(productsInChosenCity + " products in city.");
-        Log.debug(citiesOnMap[chosenCity].name() + " produces...");
-        for (int i=0; i<productsInChosenCity; i++){
-            Log.debug(citiesOnMap[chosenCity].products()[i].getName() + " - " + citiesOnMap[chosenCity].products()[i].readableName());
-        }
-
-        int pointsInChosenCity = citiesOnMap[chosenCity].locations().length;
-        Log.debug(citiesOnMap[chosenCity].name() + " is located at...");
-        for (int i=0; i<pointsInChosenCity; i++){
-            Point point = citiesOnMap[chosenCity].locations()[i]; 
-            Log.debug("Location:  (" + point.qx() + ", " + point.ry() + ")");
-        }
-
-
-        Log.debug("");
-        Log.debug("");
-        for (City city : citiesOnMap) {
-            Log.debug(city.name());
-            String productString = "";
-            for (Product product : city.products()){
-                productString += product;
+        List<Point[]> cityPoints = new ArrayList<Point[]>();
+        for (String positionLine : positionsString){
+            String[] pointValuesInLine = positionLine.replace(")","").replace("(","").split(",");
+            List<String> coordinatesForPoints = new ArrayList<String>();
+            for (String thePoint : pointValuesInLine){
+                String singleNumber = thePoint.strip();
+                coordinatesForPoints.add(singleNumber);
             }
-            Log.debug(productString);
+
+            int amountOfNumbers = coordinatesForPoints.size();
+            List<Point> pointList = new ArrayList<>();
+            for (int i=0; i<coordinatesForPoints.size(); i+=2){
+                int num1 = Integer.parseInt(coordinatesForPoints.get(i));
+                int num2 = Integer.parseInt(coordinatesForPoints.get(i+1));
+                Point thePoint = new Point(num1, num2);
+                pointList.add(thePoint);
+            }
+            Point[] arrayOfPoints = pointList.toArray(new Point[pointList.size()]);
+            cityPoints.add(arrayOfPoints);
         }
 
-        // This uses x, y but could instead use row, col if you transpose the array
+        Log.debug("");
+        Log.debug("");
+        List<City> cityAll = new ArrayList<>();
+        Log.debug("CITY COUNT: " + cityCount);
+        City[] cityArray = new City[cityCount];
+
+        for (int i=0; i<cityCount; i++){
+            cityArray[i] = new City(cityNames.get(i), cityExports.get(i), cityPoints.get(i));
+            Log.debug(cityArray[i].getPrintable());
+        }
+        Log.debug("");
+        Log.debug("");
+
+        //As it is, cargo order count needs to equal city count.  For increased flexibility, it
+        //should pick a random city.
+        CargoOrder[] cargoOrderDeck = new CargoOrder[cityCount];
+        for (int i=0; i<cargoOrderDeck.length; i++){
+            int maxReward = 80;
+            Product randomProduct = Product.valueOf(Product.getRandom().name());
+            Log.debug(randomProduct.name());
+            cargoOrderDeck[i] = new CargoOrder(randomProduct, cityArray[i], (int)(Math.random() * maxReward));
+        }
+
+        for (int i=0; i<cargoOrderDeck.length; i++){
+            Log.debug(cargoOrderDeck[i].toString());
+            Log.debug("");
+        }
+
+        Log.debug("");
+        Log.debug("");
+
         map = new Terrain[mapWidth][mapHeight];
 
         //TODO: read values from a text file or make a better random map alogrithm.
@@ -108,6 +92,25 @@ public class World {
                 map[x][y] = Terrain.values()[ordinal];
             }
         }
+    }
+
+    public List<String> readIndexInfoOfMapDataFile(String mapDataFile, int indexToRead) {
+        List<String> output = new ArrayList<>();
+
+        try (BufferedReader in = new BufferedReader(new FileReader(mapDataFile))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                if (!line.contains("###")){
+                    String[] theSplitLine = line.split(";");
+                    output.add(theSplitLine[indexToRead].strip());
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return output;
     }
 
     public Terrain getTerrain(int x, int y) {

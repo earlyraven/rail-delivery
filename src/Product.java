@@ -2,18 +2,20 @@ package traingame;
 
 public enum Product {
 	CORN,
-	SOYBEAN_OIL,
+	LEATHER_GOODS,
 	FISH,
 	IRON,
 	STEEL;
 	//TODO: EXPAND with more products.
 
-	public String getName() {
-		return name();
+	public final String label;
+
+	public static Product getRandom(){
+		int randomIndex = (int) (Math.random() * values().length);
+		return values()[randomIndex];
 	}
 
-	public String readableName() {
-		String name = name();
-		return name.toLowerCase().replace("_", " ");
+	private Product() {
+		this.label = name().toLowerCase().replace("_", " ");
 	}
 }

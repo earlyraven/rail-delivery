@@ -1,4 +1,4 @@
 package traingame;
 
-public record Point(int qx, int ry){
+public record Point(int q, int r){
 }
