@@ -79,9 +79,14 @@ public class ShaderProgram {
         return location;
     }
 
-    public void setUniform(String uniform, int val) {
+    public void setInt(String uniform, int val) {
         int location = getUniformLocation(uniform);
         GL20.glUniform1i(location, val);
+    }
+
+    public void setFloat(String uniform, float val) {
+        int location = getUniformLocation(uniform);
+        GL20.glUniform1f(location, val);
     }
 
     public void setUniform(String uniform, Vector2f v) {
