@@ -23,9 +23,12 @@ public class World {
     private Terrain[][] map;
 
     public World() {
+        List<City> theCitiesOnMap = new ArrayList<>();
+
         System.out.println("START:");
         File file = new File(mapDataFile);
         Scanner scanner;
+
         try {
             scanner = new Scanner(new FileInputStream(file));
         } catch (FileNotFoundException e) {
@@ -34,14 +37,14 @@ public class World {
         }
         while (scanner.hasNext()){
             String currentLine = scanner.nextLine();
-            if(!currentLine.contains("###")){
+            String commentMarker = "###";
+            if(!currentLine.contains(commentMarker)){
                 String[] currentLineSplit = currentLine.split(";");
                 int entriesInLine = currentLineSplit.length;
-                System.out.println(entriesInLine + " lines  present here.");
 
                 //Prepare data to create Cities:
-                String currentCityName;
-                Product currentCityExport;
+                String currentCityName = "";
+                Product currentCityExport = null;
                 List<Point> currentCityLocations = new ArrayList<>();
                 List<Point> localPointGroup = new ArrayList<>();
 
@@ -64,12 +67,22 @@ public class World {
                     }
                 }
                 Point[] lpArray = localPointGroup.toArray(new Point[0]);
+
                 //time to make a city
                 //todo code
-
+                City currentCity = new City(currentCityName, currentCityExport, lpArray);
+                theCitiesOnMap.add(currentCity);
+                System.out.println(currentCity);
             }
         }
         scanner.close();
+        Log.debug("");
+        Log.debug("");
+        for (City c : theCitiesOnMap){
+            System.out.println(c.toString());
+        }
+        Log.debug("");
+        Log.debug("");
 
         List<String> cityNames = readIndexInfoOfMapDataFile(mapDataFile, 0);
         int cityCount = cityNames.size();
