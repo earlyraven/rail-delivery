@@ -29,7 +29,7 @@ public class World {
             System.err.println("The file was not found: " + e.getMessage());
             return;
         }
-        while (scanner.hasNext()){
+        while (scanner.hasNext()) {
             String currentLine = scanner.nextLine();
             String commentMarker = "###";
             if(!currentLine.contains(commentMarker)){
@@ -41,11 +41,11 @@ public class World {
                 Product currentCityExport = null;
                 List<Point> localPointGroup = new ArrayList<>();
 
-                for (int i=0; i<entriesInLine; i++){
-                    if(i==0){
+                for (int i=0; i<entriesInLine; i++) {
+                    if(i==0) {
                         currentCityName = currentLineSplit[i];
                     }
-                    else if(i==1){
+                    else if(i==1) {
                         currentCityExport = Product.valueOf(currentLineSplit[i]);
                     }
                     else {
@@ -62,33 +62,27 @@ public class World {
                 Point[] currentPointGroup = localPointGroup.toArray(new Point[0]);
 
                 //Now use the data to make a city and add it to the City list.
+                Log.debug("");
+                Log.debug("Generating City:");
                 City currentCity = new City(currentCityName, currentCityExport, currentPointGroup);
+                Log.debug(currentCity.name().toString());
+                Log.debug(currentCity.export().toString());
+                Log.debug(currentCity.locations().toString());
+                for (Point loc : currentCity.locations()) {
+                    Log.debug(loc.toString());
+                }
                 theCitiesOnMap.add(currentCity);
             }
         }
         scanner.close();
         Log.debug("");
-        for (City c : theCitiesOnMap){
+        Log.debug("Condensed city info:");
+        for (City c : theCitiesOnMap) {
             System.out.println(c.toString());
         }
-        City[] cityArray = theCitiesOnMap.toArray(new City[0]);
-
-        //Test for Cargo Order
-        Log.debug("");
-        CargoOrder[] cargoOrderDeck = new CargoOrder[theCitiesOnMap.size()];
-        for (int i=0; i<cargoOrderDeck.length; i++){
-            int maxReward = 80;
-            Product randomProduct = Product.valueOf(Product.getRandom().name());
-            cargoOrderDeck[i] = new CargoOrder(randomProduct, cityArray[i], (int)(Math.random() * maxReward));
-        }
-        for (int i=0; i<cargoOrderDeck.length; i++){
-            Log.debug(cargoOrderDeck[i].toString());
-        }
-        Log.debug("");
         Log.debug("");
 
         map = new Terrain[mapWidth][mapHeight];
-
         //TODO: read values from a text file or make a better random map alogrithm.
         for (int x = 0; x < mapWidth; ++x) {
             map[x] = new Terrain[mapHeight];

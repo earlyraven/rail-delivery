@@ -1,13 +1,15 @@
 package traingame;
 
-public record City(String name, Product export, Point[] locations){
-	public String getPrintable(){
+public record City(String name, Product export, Point[] locations) {
+	@Override
+	public String toString(){
 		String separator = "---";
-		String output = name + separator + export.label + separator;
+		String output = "<City: " + name + separator + export + separator;
+		String pointText = "";
 		for (Point p : locations){
-			String orderedPairPoint = "(" + p.q() + ", " + p.r() + ")";
-			output += orderedPairPoint;
+			pointText += p.toString();
 		}
+		output += pointText + ">";
 		return output;
 	}
 }
