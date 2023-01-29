@@ -8,16 +8,40 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
+
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
     public final int mapWidth = 31;
     public final int mapHeight = 34;
+
+
 
     //Retrieve file that stores world related info (Cities, Products, etc.)
     public String mapDataFile = "./assets/data/map-EasternUS.txt";
     private Terrain[][] map;
 
     public World() {
+        System.out.println("START:");
+        File file = new File(mapDataFile);
+
+        try {
+            Scanner scanner = new Scanner(new FileInputStream(file));
+            while (scanner.hasNext()){
+                String currentLine = scanner.nextLine();
+                String[] currentLineSplit = currentLine.split(";");
+                System.out.println(currentLine);
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            System.err.println("The file was not found: " + e.getMessage());
+        }
+
+
+
         List<String> cityNames = readIndexInfoOfMapDataFile(mapDataFile, 0);
         int cityCount = cityNames.size();
         List<String> exportNames = readIndexInfoOfMapDataFile(mapDataFile, 1);

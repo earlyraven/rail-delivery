@@ -1,6 +1,6 @@
-###cityName; export; loc1, loc2, loc3...
-New York, NY; iron; (5,6),(5,7),(6,6)
-Buffalo, NY; corn; (18,18),(18,19),(19,19)
-Chicago, IL; corn; (12,15)
-Philadelphia, PA; iron; (2,9)
-Detroid, MI; leather goods; (9,9), (9,10)
+###cityName;export;loc1q,loc1r;loc2q,loc2r;loc3q,loc3r...
+New York, NY;IRON;5,6;5,7;6,6
+Buffalo, NY;CORN;18,18;18,19;19,19
+Chicago, IL;CORN;12,15
+Philadelphia, PA;IRON;2,9
+Detroid, MI;LEATHER_GOODS;9,9;9,10
