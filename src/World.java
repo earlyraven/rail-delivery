@@ -18,8 +18,6 @@ public class World {
     public final int mapWidth = 31;
     public final int mapHeight = 34;
 
-
-
     //Retrieve file that stores world related info (Cities, Products, etc.)
     public String mapDataFile = "./assets/data/map-EasternUS.txt";
     private Terrain[][] map;
@@ -45,13 +43,7 @@ public class World {
                 String currentCityName;
                 Product currentCityExport;
                 List<Point> currentCityLocations = new ArrayList<>();
-//                Point[] currentPointGroup = new Point[entriesInLine - 2];
-  //              //the - 2 is because the index starts after two other entries.
-//                Point[] currentCityPositionGroup = new Point[entriesInLine - 2];
-
-
                 List<Point> localPointGroup = new ArrayList<>();
-
 
                 for (int i=0; i<entriesInLine; i++){
                     if(i==0){
@@ -65,34 +57,19 @@ public class World {
                         int[] pointCoordinates = new int[partitionedCoordinateString.length];
                         for (int j=0; j<pointCoordinates.length; j++){
                             pointCoordinates[j] = Integer.parseInt(partitionedCoordinateString[j]);
-                            System.out.println("KKKKKKKKKKK" + pointCoordinates[j]);
                         }
                         Point somePoint = new Point(pointCoordinates[0], pointCoordinates[1]);
                         localPointGroup.add(somePoint);
-                        Log.debug("");
-                        Log.debug("");
-                        Log.debug("");
-                        for (Point loc : localPointGroup){
-                            System.out.println("POINT: " + loc.toString());
-                        }
                         Point[] locArray = localPointGroup.toArray(new Point[0]);
-                        Log.debug("THERE ARE: " + locArray.length);
-                        for (Point mypoint : locArray){
-                            System.out.println("KKKKKKKKKFFFFFFFFFFFFFF: " + mypoint);
-                        }
-                        Log.debug("");
-                        Log.debug("");
-                        Log.debug("");
-                        for (Point val : locArray){
-                            System.out.println(val.q() + " - " + val.r());
-                        }
                     }
                 }
+                Point[] lpArray = localPointGroup.toArray(new Point[0]);
+                //time to make a city
+                //todo code
+
             }
         }
         scanner.close();
-
-
 
         List<String> cityNames = readIndexInfoOfMapDataFile(mapDataFile, 0);
         int cityCount = cityNames.size();
