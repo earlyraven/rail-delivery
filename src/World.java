@@ -27,18 +27,70 @@ public class World {
     public World() {
         System.out.println("START:");
         File file = new File(mapDataFile);
-
+        Scanner scanner;
         try {
-            Scanner scanner = new Scanner(new FileInputStream(file));
-            while (scanner.hasNext()){
-                String currentLine = scanner.nextLine();
-                String[] currentLineSplit = currentLine.split(";");
-                System.out.println(currentLine);
-            }
-            scanner.close();
+            scanner = new Scanner(new FileInputStream(file));
         } catch (FileNotFoundException e) {
             System.err.println("The file was not found: " + e.getMessage());
+            return;
         }
+        while (scanner.hasNext()){
+            String currentLine = scanner.nextLine();
+            if(!currentLine.contains("###")){
+                String[] currentLineSplit = currentLine.split(";");
+                int entriesInLine = currentLineSplit.length;
+                System.out.println(entriesInLine + " lines  present here.");
+
+                //Prepare data to create Cities:
+                String currentCityName;
+                Product currentCityExport;
+                List<Point> currentCityLocations = new ArrayList<>();
+//                Point[] currentPointGroup = new Point[entriesInLine - 2];
+  //              //the - 2 is because the index starts after two other entries.
+//                Point[] currentCityPositionGroup = new Point[entriesInLine - 2];
+
+
+                List<Point> localPointGroup = new ArrayList<>();
+
+
+                for (int i=0; i<entriesInLine; i++){
+                    if(i==0){
+                        currentCityName = currentLineSplit[i];
+                    }
+                    else if(i==1){
+                        currentCityExport = Product.valueOf(currentLineSplit[i]);
+                    }
+                    else {
+                        String[] partitionedCoordinateString = currentLineSplit[i].split(",");
+                        int[] pointCoordinates = new int[partitionedCoordinateString.length];
+                        for (int j=0; j<pointCoordinates.length; j++){
+                            pointCoordinates[j] = Integer.parseInt(partitionedCoordinateString[j]);
+                            System.out.println("KKKKKKKKKKK" + pointCoordinates[j]);
+                        }
+                        Point somePoint = new Point(pointCoordinates[0], pointCoordinates[1]);
+                        localPointGroup.add(somePoint);
+                        Log.debug("");
+                        Log.debug("");
+                        Log.debug("");
+                        for (Point loc : localPointGroup){
+                            System.out.println("POINT: " + loc.toString());
+                        }
+                        Point[] locArray = localPointGroup.toArray(new Point[0]);
+                        Log.debug("THERE ARE: " + locArray.length);
+                        for (Point mypoint : locArray){
+                            System.out.println("KKKKKKKKKFFFFFFFFFFFFFF: " + mypoint);
+                        }
+                        Log.debug("");
+                        Log.debug("");
+                        Log.debug("");
+                        for (Point val : locArray){
+                            System.out.println(val.q() + " - " + val.r());
+                        }
+                    }
+                }
+            }
+        }
+        scanner.close();
 
 
 
