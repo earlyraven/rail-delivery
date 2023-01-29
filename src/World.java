@@ -2,16 +2,12 @@ package traingame;
 
 import traingame.engine.Log;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
@@ -24,8 +20,6 @@ public class World {
 
     public World() {
         List<City> theCitiesOnMap = new ArrayList<>();
-
-        System.out.println("START:");
         File file = new File(mapDataFile);
         Scanner scanner;
 
@@ -45,7 +39,6 @@ public class World {
                 //Prepare data to create Cities:
                 String currentCityName = "";
                 Product currentCityExport = null;
-                List<Point> currentCityLocations = new ArrayList<>();
                 List<Point> localPointGroup = new ArrayList<>();
 
                 for (int i=0; i<entriesInLine; i++){
@@ -66,83 +59,31 @@ public class World {
                         Point[] locArray = localPointGroup.toArray(new Point[0]);
                     }
                 }
-                Point[] lpArray = localPointGroup.toArray(new Point[0]);
+                Point[] currentPointGroup = localPointGroup.toArray(new Point[0]);
 
-                //time to make a city
-                //todo code
-                City currentCity = new City(currentCityName, currentCityExport, lpArray);
+                //Now use the data to make a city and add it to the City list.
+                City currentCity = new City(currentCityName, currentCityExport, currentPointGroup);
                 theCitiesOnMap.add(currentCity);
-                System.out.println(currentCity);
             }
         }
         scanner.close();
         Log.debug("");
-        Log.debug("");
         for (City c : theCitiesOnMap){
             System.out.println(c.toString());
         }
+        City[] cityArray = theCitiesOnMap.toArray(new City[0]);
+
+        //Test for Cargo Order
         Log.debug("");
-        Log.debug("");
-
-        List<String> cityNames = readIndexInfoOfMapDataFile(mapDataFile, 0);
-        int cityCount = cityNames.size();
-        List<String> exportNames = readIndexInfoOfMapDataFile(mapDataFile, 1);
-        List<String> positionsString = readIndexInfoOfMapDataFile(mapDataFile, 2);
-        List<Product> cityExports = new ArrayList<Product>();
-
-        for (String export : exportNames){
-            cityExports.add(Product.valueOf(export.replace(" ", "_").toUpperCase()));
-        }
-
-        List<Point[]> cityPoints = new ArrayList<Point[]>();
-        for (String positionLine : positionsString){
-            String[] pointValuesInLine = positionLine.replace(")","").replace("(","").split(",");
-            List<String> coordinatesForPoints = new ArrayList<String>();
-            for (String thePoint : pointValuesInLine){
-                String singleNumber = thePoint.strip();
-                coordinatesForPoints.add(singleNumber);
-            }
-
-            int amountOfNumbers = coordinatesForPoints.size();
-            List<Point> pointList = new ArrayList<>();
-            for (int i=0; i<coordinatesForPoints.size(); i+=2){
-                int num1 = Integer.parseInt(coordinatesForPoints.get(i));
-                int num2 = Integer.parseInt(coordinatesForPoints.get(i+1));
-                Point thePoint = new Point(num1, num2);
-                pointList.add(thePoint);
-            }
-            Point[] arrayOfPoints = pointList.toArray(new Point[pointList.size()]);
-            cityPoints.add(arrayOfPoints);
-        }
-
-        Log.debug("");
-        Log.debug("");
-        List<City> cityAll = new ArrayList<>();
-        Log.debug("CITY COUNT: " + cityCount);
-        City[] cityArray = new City[cityCount];
-
-        for (int i=0; i<cityCount; i++){
-            cityArray[i] = new City(cityNames.get(i), cityExports.get(i), cityPoints.get(i));
-            Log.debug(cityArray[i].getPrintable());
-        }
-        Log.debug("");
-        Log.debug("");
-
-        //As it is, cargo order count needs to equal city count.  For increased flexibility, it
-        //should pick a random city.
-        CargoOrder[] cargoOrderDeck = new CargoOrder[cityCount];
+        CargoOrder[] cargoOrderDeck = new CargoOrder[theCitiesOnMap.size()];
         for (int i=0; i<cargoOrderDeck.length; i++){
             int maxReward = 80;
             Product randomProduct = Product.valueOf(Product.getRandom().name());
-            Log.debug(randomProduct.name());
             cargoOrderDeck[i] = new CargoOrder(randomProduct, cityArray[i], (int)(Math.random() * maxReward));
         }
-
         for (int i=0; i<cargoOrderDeck.length; i++){
             Log.debug(cargoOrderDeck[i].toString());
-            Log.debug("");
         }
-
         Log.debug("");
         Log.debug("");
 
@@ -158,25 +99,6 @@ public class World {
                 map[x][y] = Terrain.values()[ordinal];
             }
         }
-    }
-
-    public List<String> readIndexInfoOfMapDataFile(String mapDataFile, int indexToRead) {
-        List<String> output = new ArrayList<>();
-
-        try (BufferedReader in = new BufferedReader(new FileReader(mapDataFile))) {
-            String line;
-            while ((line = in.readLine()) != null) {
-                if (!line.contains("###")){
-                    String[] theSplitLine = line.split(";");
-                    output.add(theSplitLine[indexToRead].strip());
-                }
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return output;
     }
 
     public Terrain getTerrain(int x, int y) {
