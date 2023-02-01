@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Random;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
@@ -22,7 +21,8 @@ public class World {
 
         cities = readCitiesFromFile("/assets/data/map-EasternUS.txt").toArray(new City[0]);
 
-        runTests();
+        runTests(); //Once actual display implementation is achieved, this can be removed.
+
 
         map = new Terrain[mapWidth][mapHeight];
         //TODO: read values from a text file or make a better random map alogrithm.
@@ -88,19 +88,6 @@ public class World {
         return theCitiesOnMap;
     }
 
-    //NOTE: For now, keeping it simple.  Just random.  Might want to re-balance payout later.
-    public CargoOrder getCargoOrder() {
-        //Chose a random product, city and payout.
-        Random random = new Random();
-        Product chosenProduct = Product.valueOf(Product.getRandom().name());
-        City chosenCity = cities[random.nextInt(cities.length)];
-        int chosenPayout = random.nextInt(20,50);
-
-        //Create and return the CargoOrder.
-        CargoOrder cargoOrder = new CargoOrder(chosenProduct, chosenCity, chosenPayout);
-        return cargoOrder;
-    }
-
     public Terrain getTerrain(int x, int y) {
         return map[x][y];
     }
@@ -111,9 +98,12 @@ public class World {
         for (City c : cities) {
             Log.debug(c.toString());
         }
+
         Log.debug("");
         Log.debug("Test Cargo Order Generation:");
-        for (int i=0; i<15; i++) Log.debug(getCargoOrder().toString());
+        for (int i=0; i<15; i++) {
+            Log.debug(CargoOrder.getRandom(cities).toString());
+        }
     }
 
     public void update() {
