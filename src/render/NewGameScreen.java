@@ -11,6 +11,11 @@ import traingame.Game;
 public class NewGameScreen extends Screen {
     private ArrayList<GuiElement> left = new ArrayList<>();
     private ArrayList<GuiElement> right = new ArrayList<>();
+    private ToggleButton color1Button;
+    private ToggleButton color2Button;
+    private ToggleButton color3Button;
+    private ToggleButton color4Button;
+    private boolean atLeastOneSelected;
 
     private String title = "New Game";
     private String info = "Select one color per player";
@@ -64,12 +69,12 @@ public class NewGameScreen extends Screen {
     public NewGameScreen(Game game) {
         BitmapFont font = Fonts.getButtonFont();
 
-        left.add(new ToggleButton(0, 0));
-        right.add(new ToggleButton(COLOR_WIDTH, 0));
-        left.add(new ToggleButton(0, COLOR_HEIGHT));
-        right.add(new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT));
+        left.add(color1Button = new ToggleButton(0, 0));
+        right.add(color2Button = new ToggleButton(COLOR_WIDTH, 0));
+        left.add(color3Button = new ToggleButton(0, COLOR_HEIGHT));
+        right.add(color4Button = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT));
         left.add(new TextButton(font, "Exit", () -> game.stop()));
-        right.add(new TextButton(font, "Ready", () -> game.enterWorld()));
+        right.add(new TextButton(font, "Ready", () -> game.enterWorld(atLeastOneSelected)));
 
         for (GuiElement element : left) {
             selectable.add(element);
@@ -132,6 +137,10 @@ public class NewGameScreen extends Screen {
         }
 
         spriteBatch.render();
+        atLeastOneSelected = false;
+        if (color1Button.on || color2Button.on || color3Button.on || color4Button.on) {
+            atLeastOneSelected = true;
+        }
 
     }
 }

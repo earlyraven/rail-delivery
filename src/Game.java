@@ -37,11 +37,17 @@ public class Game implements ILoopable {
         Log.debug("Initializing with hexagon size: " + renderer.getPrintableHexSize());
     }
 
-    public void enterWorld() {
-        this.world = new World();
-        Log.debug("Creating world of size: (" + world.mapWidth + ", " + world.mapHeight + ")");
-        Log.debug("Initializing World Graphics...");
-        initGraphical();
+    public void enterWorld(boolean inValue) {
+        if (inValue) {
+            this.world = new World();
+            Log.debug("Creating world of size: (" + world.mapWidth + ", " + world.mapHeight + ")");
+            Log.debug("Initializing World Graphics...");
+            initGraphical();
+
+        }
+        else {
+            System.out.println("Select at least one color.");
+        }
     }
 
     public void exitWorld() {
