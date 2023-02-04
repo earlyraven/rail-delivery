@@ -1,9 +1,9 @@
 package traingame;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class Company {
     private final String name;
