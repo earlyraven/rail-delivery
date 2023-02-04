@@ -11,11 +11,10 @@ import traingame.Game;
 public class NewGameScreen extends Screen {
     private ArrayList<GuiElement> left = new ArrayList<>();
     private ArrayList<GuiElement> right = new ArrayList<>();
-    private ToggleButton color1Button;
-    private ToggleButton color2Button;
-    private ToggleButton color3Button;
-    private ToggleButton color4Button;
-    private boolean atLeastOneSelected;
+    private ToggleButton redButton = new ToggleButton(0, 0);
+    private ToggleButton blueButton = new ToggleButton(COLOR_WIDTH, 0);
+    private ToggleButton yellowButton = new ToggleButton(0, COLOR_HEIGHT);
+    private ToggleButton greenButton = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT);
 
     private String title = "New Game";
     private String info = "Select one color per player";
@@ -69,12 +68,11 @@ public class NewGameScreen extends Screen {
     public NewGameScreen(Game game) {
         BitmapFont font = Fonts.getButtonFont();
 
-        left.add(color1Button = new ToggleButton(0, 0));
-        right.add(color2Button = new ToggleButton(COLOR_WIDTH, 0));
-        left.add(color3Button = new ToggleButton(0, COLOR_HEIGHT));
-        right.add(color4Button = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT));
+        left.add(redButton);
+        right.add(blueButton);
+        left.add(yellowButton);
+        right.add(greenButton);
         left.add(new TextButton(font, "Exit", () -> game.stop()));
-//        right.add(new TextButton(font, "Ready", () -> game.enterWorld(atLeastOneSelected)));
         right.add(new TextButton(font, "Ready", () -> tryStartWorld(game)));
 
         for (GuiElement element : left) {
@@ -86,8 +84,11 @@ public class NewGameScreen extends Screen {
     }
 
     private void tryStartWorld(Game game) {
-        boolean inValue = atLeastOneSelected;
-        if (inValue) {
+        //Require at least one button to be selected to start.
+        //FUTURE: If/when doing network multi-player we may wish to further restrict this
+        //to players being ready.
+        boolean startable = redButton.on || greenButton.on || blueButton.on || yellowButton.on;
+        if (startable) {
             game.enterWorld();
         }
         else {
@@ -148,10 +149,5 @@ public class NewGameScreen extends Screen {
         }
 
         spriteBatch.render();
-        atLeastOneSelected = false;
-        if (color1Button.on || color2Button.on || color3Button.on || color4Button.on) {
-            atLeastOneSelected = true;
-        }
-
     }
 }
