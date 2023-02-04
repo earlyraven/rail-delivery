@@ -84,9 +84,9 @@ public class NewGameScreen extends Screen {
     }
 
     private void tryEnterWorld(Game game) {
-        //Require at least one button to be selected to start.
-        //FUTURE: If/when doing network multi-player we may wish to further restrict this
-        //to players being ready.
+        // Require at least one button to be selected to start.
+        // FUTURE: If/when doing network multi-player we may wish to further restrict this
+        // to players being ready.
         boolean startable = redButton.on || greenButton.on || blueButton.on || yellowButton.on;
         if (startable) {
             game.enterWorld();
