@@ -74,13 +74,24 @@ public class NewGameScreen extends Screen {
         left.add(color3Button = new ToggleButton(0, COLOR_HEIGHT));
         right.add(color4Button = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT));
         left.add(new TextButton(font, "Exit", () -> game.stop()));
-        right.add(new TextButton(font, "Ready", () -> game.enterWorld(atLeastOneSelected)));
+//        right.add(new TextButton(font, "Ready", () -> game.enterWorld(atLeastOneSelected)));
+        right.add(new TextButton(font, "Ready", () -> tryStartWorld(game)));
 
         for (GuiElement element : left) {
             selectable.add(element);
         }
         for (GuiElement element : right) {
             selectable.add(element);
+        }
+    }
+
+    private void tryStartWorld(Game game) {
+        boolean inValue = atLeastOneSelected;
+        if (inValue) {
+            game.enterWorld();
+        }
+        else {
+            System.out.println("Select at least one color.");
         }
     }
 
