@@ -73,7 +73,7 @@ public class NewGameScreen extends Screen {
         left.add(yellowButton);
         right.add(greenButton);
         left.add(new TextButton(font, "Exit", () -> game.stop()));
-        right.add(new TextButton(font, "Ready", () -> tryStartWorld(game)));
+        right.add(new TextButton(font, "Ready", () -> tryEnterWorld(game)));
 
         for (GuiElement element : left) {
             selectable.add(element);
@@ -83,7 +83,7 @@ public class NewGameScreen extends Screen {
         }
     }
 
-    private void tryStartWorld(Game game) {
+    private void tryEnterWorld(Game game) {
         //Require at least one button to be selected to start.
         //FUTURE: If/when doing network multi-player we may wish to further restrict this
         //to players being ready.
