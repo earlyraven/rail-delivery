@@ -17,11 +17,6 @@ public class NewGameScreen extends Screen {
     private ToggleButton yellowButton = new ToggleButton(0, COLOR_HEIGHT);
     private ToggleButton greenButton = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT);
 
-    private Company redCompany = Company.makeRed();
-    private Company blueCompany = Company.makeBlue();
-    private Company yellowCompany = Company.makeYellow();
-    private Company greenCompany = Company.makeGreen();
-
     private String title = "New Game";
     private String info = "Select one color per player";
 
@@ -90,23 +85,23 @@ public class NewGameScreen extends Screen {
     }
 
     private void tryEnterWorld(Game game) {
+        List<Company> companyGroup = new ArrayList<>();
+        if (redButton.on) {
+            companyGroup.add(Company.makeRed());
+        }
+        if (greenButton.on) {
+            companyGroup.add(Company.makeGreen());
+        }
+        if (blueButton.on) {
+            companyGroup.add(Company.makeBlue());
+        }
+        if (yellowButton.on) {
+            companyGroup.add(Company.makeYellow());
+        }
+
         // Require at least one button to be selected to start.
         // FUTURE: If/when doing network multi-player we may wish to further restrict this
         // to players being ready.
-        List<Company> companyGroup = new ArrayList<>();
-        if (redButton.on) {
-            companyGroup.add(redCompany);
-        }
-        if (greenButton.on) {
-            companyGroup.add(greenCompany);
-        }
-        if (blueButton.on) {
-            companyGroup.add(blueCompany);
-        }
-        if (yellowButton.on) {
-            companyGroup.add(yellowCompany);
-        }
-
         boolean startable = companyGroup.size() > 0;
         if (startable) {
             game.enterWorld(companyGroup);
