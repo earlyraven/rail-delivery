@@ -17,7 +17,11 @@ public class World {
     //Retrieve file that stores world related info (Cities, Products, etc.)
     private Terrain[][] map;
 
-    public World() {
+    public World(List<Company> companies) {
+        Log.debug("Generating world with " + companies.size() + " companies.");
+        for (Company c : companies) {
+            Log.debug(c.toString());
+        }
 
         cities = readCitiesFromFile("/assets/data/map-EasternUS.txt").toArray(new City[0]);
 

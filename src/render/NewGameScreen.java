@@ -2,11 +2,12 @@ package traingame.render;
 
 import java.util.*;
 
+import traingame.Company;
+import traingame.Game;
 import traingame.engine.render.SpriteBatch;
 import traingame.engine.render.Texture;
 import traingame.engine.render.gui.*;
 import traingame.engine.render.text.BitmapFont;
-import traingame.Game;
 
 public class NewGameScreen extends Screen {
     private ArrayList<GuiElement> left = new ArrayList<>();
@@ -15,6 +16,11 @@ public class NewGameScreen extends Screen {
     private ToggleButton blueButton = new ToggleButton(COLOR_WIDTH, 0);
     private ToggleButton yellowButton = new ToggleButton(0, COLOR_HEIGHT);
     private ToggleButton greenButton = new ToggleButton(COLOR_WIDTH, COLOR_HEIGHT);
+
+    private Company redCompany = Company.makeRed();
+    private Company blueCompany = Company.makeBlue();
+    private Company yellowCompany = Company.makeYellow();
+    private Company greenCompany = Company.makeGreen();
 
     private String title = "New Game";
     private String info = "Select one color per player";
@@ -87,9 +93,23 @@ public class NewGameScreen extends Screen {
         // Require at least one button to be selected to start.
         // FUTURE: If/when doing network multi-player we may wish to further restrict this
         // to players being ready.
-        boolean startable = redButton.on || greenButton.on || blueButton.on || yellowButton.on;
+        List<Company> companyGroup = new ArrayList<>();
+        if (redButton.on) {
+            companyGroup.add(redCompany);
+        }
+        if (greenButton.on) {
+            companyGroup.add(greenCompany);
+        }
+        if (blueButton.on) {
+            companyGroup.add(blueCompany);
+        }
+        if (yellowButton.on) {
+            companyGroup.add(yellowCompany);
+        }
+
+        boolean startable = companyGroup.size() > 0;
         if (startable) {
-            game.enterWorld();
+            game.enterWorld(companyGroup);
         }
         else {
             System.out.println("Select at least one color.");

@@ -8,6 +8,7 @@ import traingame.engine.Log;
 import traingame.engine.SoftwareVersion;
 import traingame.engine.render.Window;
 import traingame.render.*;
+import java.util.List;
 
 public class Game implements ILoopable {
     public static final SoftwareVersion VERSION = new SoftwareVersion(0, 0, 0);
@@ -36,8 +37,8 @@ public class Game implements ILoopable {
         this.world = null;
     }
 
-    public void enterWorld() {
-        this.world = new World();
+    public void enterWorld(List<Company> companies) {
+        this.world = new World(companies);
         initGraphical();
     }
 
