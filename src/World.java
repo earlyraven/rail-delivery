@@ -17,6 +17,8 @@ public class World {
     //Retrieve file that stores world related info (Cities, Products, etc.)
     private Terrain[][] map;
 
+    private Point hoverHex = null;
+
     public World(List<Company> companies) {
         Log.debug("Generating world with " + companies.size() + " companies.");
         for (Company c : companies) {
@@ -96,11 +98,18 @@ public class World {
         return map[x][y];
     }
 
-    // Convert from offset coordinates to axial coordinates
-    private int getQ(int x, int y) {
-        return x - (y / 2);
+    public Point getHoverLocation() {
+        return hoverHex;
     }
-    // r is simply the same as y.
+
+    public void setHoverLocation(Point hover) {
+        if (hover != null && (hover.x() < 0 || hover.x() >= mapWidth 
+                              || hover.y() < 0 || hover.y() >= mapHeight)) {
+            this.hoverHex = null;
+            return;
+        }
+        this.hoverHex = hover;
+    }
 
     public void runTests() {
         Log.debug("");

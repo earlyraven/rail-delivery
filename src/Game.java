@@ -28,7 +28,7 @@ public class Game implements ILoopable {
             Fonts.load();
             this.renderer = new Renderer();
             this.window.setResizeListener(renderer);
-            this.input = new Input(this);
+            this.input = new Input(this, renderer);
             this.window.setInput(input);
             this.overlay = new Overlay(this);
             this.input.setOverlay(this.overlay);
@@ -49,6 +49,7 @@ public class Game implements ILoopable {
 
     private void initGraphical() {
         if (isGraphical()) {
+            input.setWorld(world);
             while (overlay.hasScreen()) {
                 overlay.popScreen();
             }

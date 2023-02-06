@@ -2,16 +2,17 @@ package traingame.render;
 
 import java.awt.Font;
 import java.io.IOException;
+import java.lang.Math.*;
 import java.util.Scanner;
 
 import org.lwjgl.opengl.GL11;
 
+import shadowfox.math.*;
+import traingame.Point;
 import traingame.engine.render.*;
 import traingame.engine.render.SpriteBatch;
 import traingame.engine.render.Texture;
 import traingame.World;
-import shadowfox.math.*;
-import java.lang.Math.*;
 import traingame.Terrain;
 
 public class Renderer implements IFramebufferSizeListener {
@@ -60,16 +61,7 @@ public class Renderer implements IFramebufferSizeListener {
 
         // Render the world
         if (world != null) {
-            int reservedLeft = 0;
-            int reservedBottom = 0;
-            // Temporary test code to see what moving the UI location would look like
-            if ((double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH < (double)width / height) {
-                reservedLeft = 200;
-            }
-            else {
-                reservedBottom = 200;
-            }
-            renderWorld(lerp, world, reservedLeft, reservedBottom);
+            renderWorld(lerp, world);
         }
 
         // Render UI
@@ -81,24 +73,79 @@ public class Renderer implements IFramebufferSizeListener {
         overlay.render(spriteBatch, uiDimensions);
     }
 
-    private void renderWorld(float lerp, World world, int reservedLeft, int reservedBottom) {
-        int mapScreenWidth = width - reservedLeft;
-        int mapScreenHeight = height - reservedBottom;
-        int widthDiff = 0;
-        int heightDiff = 0;
-        double aspectRatio = (double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH;
-        if (aspectRatio > (double)mapScreenWidth / mapScreenHeight) {
-            heightDiff = mapScreenHeight - (int)(mapScreenWidth / aspectRatio);
+    private boolean sidebar() {
+        return (double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH < (double)width / height;
+    }
+
+    private int getSidebarWidth() {
+        if (sidebar()) {
+            return 200;
+        }
+        return 0;
+    }
+
+    private int getBottomBarHeight() {
+        if (sidebar()) {
+            return 0;
+        }
+        return 200;
+    }
+
+    private double mapAspectRatio() {
+        return (double)MAP_PIXELS_WIDE / MAP_PIXELS_HIGH;
+    }
+
+    // Extra padding on the x axis the make the map keep its aspect ratio
+    private float getMapBufferWidth() {
+        int mapScreenWidth = width - getSidebarWidth();
+        int mapScreenHeight = height - getBottomBarHeight();
+
+        if (mapAspectRatio() > (double)mapScreenWidth / mapScreenHeight) {
+            return 0;
         }
         else {
-            widthDiff = mapScreenWidth - (int)(aspectRatio * mapScreenHeight);
+            return mapScreenWidth - (int)(mapAspectRatio() * mapScreenHeight);
         }
 
+    }
+
+    // Extra padding on the y axis the make the map keep its aspect ratio
+    private float getMapBufferHeight() {
+        int mapScreenWidth = width - getSidebarWidth();
+        int mapScreenHeight = height - getBottomBarHeight();
+
+        if (mapAspectRatio() > (double)mapScreenWidth / mapScreenHeight) {
+            return mapScreenHeight - (int)(mapScreenWidth / mapAspectRatio());
+        }
+        else {
+            return 0;
+        }
+    }
+
+    private float getLeftMargin() {
+        return (getSidebarWidth() + getMapBufferWidth() / 2) / uiDimensions.x;
+    }
+
+    private float getRightMargin() {
+        float widthDiff = getMapBufferWidth();
+        return (widthDiff - (widthDiff / 2)) / uiDimensions.x;
+    }
+
+    private float getTopMargin() {
+        return getMapBufferHeight() / 2 / uiDimensions.y;
+    }
+
+    private float getBottomMargin() {
+        float heightDiff = getMapBufferHeight();
+        return (heightDiff - heightDiff / 2 + getBottomBarHeight()) / uiDimensions.y;
+    }
+
+    private void renderWorld(float lerp, World world) {
         shader2D.setUniform("dimensions", new Vector2f(MAP_PIXELS_WIDE, MAP_PIXELS_HIGH));
-        shader2D.setFloat("left_margin", (reservedLeft + widthDiff / 2) / uiDimensions.x);
-        shader2D.setFloat("right_margin", (widthDiff - (widthDiff / 2)) / uiDimensions.x);
-        shader2D.setFloat("top_margin", heightDiff / 2 / uiDimensions.y);
-        shader2D.setFloat("bottom_margin", (heightDiff - heightDiff / 2 + reservedBottom) / uiDimensions.y);
+        shader2D.setFloat("left_margin", getLeftMargin());
+        shader2D.setFloat("right_margin", getRightMargin());
+        shader2D.setFloat("top_margin", getTopMargin());
+        shader2D.setFloat("bottom_margin", getBottomMargin());
 
         spriteBatch.setTexture(mapBackground);
         spriteBatch.blit(0, 0, MAP_PIXELS_WIDE, MAP_PIXELS_HIGH, mapBackground.getWidth(), mapBackground.getHeight());
@@ -125,7 +172,54 @@ public class Renderer implements IFramebufferSizeListener {
                 spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, texX, texY);
             }
         }
+
+        Point highlighted = world.getHoverLocation();
+        if (highlighted != null) {
+            int locX = getPixelX(highlighted.x(), highlighted.y());
+            int locY = getPixelY(highlighted.x(), highlighted.y());
+            spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0);
+        }
+
         spriteBatch.render();
+    }
+
+    // Note this function can return points outside of the map bounds. It's the caller's responsibilty
+    // to check for that.
+    public Point getHexAtScreenCoordinates(double xPos, double yPos) {
+        double xLoc = (xPos / uiDimensions.x - getLeftMargin()) / (1.0 - getLeftMargin() - getRightMargin());
+        double yLoc = (yPos / uiDimensions.y - getTopMargin()) / (1.0 - getTopMargin() - getBottomMargin());
+        if (xLoc < 0 || xLoc > 1 || yLoc < 0 || yLoc > 1) {
+            return null;
+        }
+
+        double xMap = xLoc * MAP_PIXELS_WIDE;
+        double yMap = yLoc * MAP_PIXELS_HIGH;
+
+        final int SIDE_LENGTH = HEX_HEIGHT / 2;
+        int yGuess = (int)(yMap / HEX_ROW_HEIGHT);
+        // Use floor to make -0.5 drop down to -1 instead of being rounded to 0
+        int xGuess = (int)Math.floor(xMap / HEX_WIDTH - 0.5 * (yGuess % 2));
+        if (yMap > HEX_ROW_HEIGHT * (yGuess + 1) - SIDE_LENGTH) {
+            // Mouse is over a non-overlapping part of the row, so yGuess is the actual y value
+            return Point.fromXY(xGuess, yGuess);
+        }
+        // Else, rows overlap. Actual y value could be yGuess or yGuess - 1
+        int yGuess2 = yGuess - 1;
+        int xGuess2 = (int)Math.floor(xMap / HEX_WIDTH - 0.5 * (yGuess2 % 2));
+
+        double xCenter1 = HEX_WIDTH * (xGuess + 0.5 + 0.5 * (yGuess % 2));
+        double xCenter2 = HEX_WIDTH * (xGuess2 + 0.5 + 0.5 * (yGuess2 % 2));
+        double dx1 = xMap - xCenter1;
+        double dx2 = xMap - xCenter2;
+        double yCenter1 = yGuess * HEX_ROW_HEIGHT + SIDE_LENGTH;
+        double yCenter2 = yGuess2 * HEX_ROW_HEIGHT + SIDE_LENGTH;
+        double dy1 = yMap - yCenter1;
+        double dy2 = yMap - yCenter2;
+        if (dx1 * dx1 + dy1 * dy1 <= dx2 * dx2 + dy2 * dy2) {
+            return Point.fromXY(xGuess, yGuess);
+        }
+
+        return Point.fromXY(xGuess2, yGuess2);
     }
 
     @Override

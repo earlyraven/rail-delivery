@@ -7,19 +7,27 @@ import traingame.engine.Gamepad;
 import traingame.engine.Log;
 import traingame.engine.render.Window;
 import traingame.render.Overlay;
+import traingame.render.Renderer;
 
-public class Input extends InputManager{
+public class Input extends InputManager {
     private Overlay overlay;
-    private Game game;
+    private World world;
+    private final Game game;
+    private final Renderer renderer;
 
     private ArrayList<Gamepad> gamepads = new ArrayList<>();
 
-    public Input(Game game) {
+    public Input(Game game, Renderer renderer) {
         this.game = game;
+        this.renderer = renderer;
     }
 
     public void setOverlay(Overlay overlay) {
         this.overlay = overlay;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
 
     public void updateConnectedGamepads() {
@@ -72,7 +80,13 @@ public class Input extends InputManager{
     @Override
     public void moveCursor(double xPos, double yPos) {
         overlay.positionPointer(xPos, yPos);
-        super.moveCursor(xPos, yPos);        
+
+        if (world != null) {
+            Point hovered = renderer.getHexAtScreenCoordinates(xPos, yPos);
+            world.setHoverLocation(hovered);
+        }
+
+        super.moveCursor(xPos, yPos);
     }
 
     @Override
