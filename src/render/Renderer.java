@@ -123,9 +123,9 @@ public class Renderer implements IFramebufferSizeListener {
                     texX = 45;
                 }
                 spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, texX, texY);
-                spriteBatch.render();
             }
         }
+        spriteBatch.render();
     }
 
     @Override
