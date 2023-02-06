@@ -5,6 +5,7 @@ import traingame.engine.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class World {
@@ -12,6 +13,7 @@ public class World {
     public final int mapWidth = 31;
     public final int mapHeight = 34;
 
+    private Random random = new Random();
     private final City[] cities;
 
     //Retrieve file that stores world related info (Cities, Products, etc.)
@@ -19,11 +21,29 @@ public class World {
 
     public World(List<Company> companies) {
         Log.debug("Generating world with " + companies.size() + " companies.");
-        for (Company c : companies) {
-            Log.debug(c.toString());
-        }
 
         cities = readCitiesFromFile("/assets/data/map-EasternUS.txt").toArray(new City[0]);
+        ArrayList<City> candidateStartCities = new ArrayList<>(Arrays.asList(cities));
+
+        Log.debug("\nStaring cities:");
+        // Handle this error condition better if possible.
+        if (companies.size() > candidateStartCities.size()) {
+            Log.debug("Insufficient cities to allocate a city to each company.");
+        }
+
+        // Finish initializing Companies.
+        Log.debug("\nCompanies (with updated trainQ and trainR)");
+        for (Company c : companies) {
+            int randomIndex = random.nextInt(candidateStartCities.size());
+            City startingCity = candidateStartCities.get(randomIndex);
+            Log.debug(startingCity.toString());
+            candidateStartCities.remove(randomIndex);
+            c.trainQ = startingCity.getSpawnPoint().getQ();
+            c.trainR = startingCity.getSpawnPoint().getR();
+
+            Log.debug(c.toString());
+            Log.debug("");
+        }
 
         runTests(); //Once actual display implementation is achieved, this can be removed.
 

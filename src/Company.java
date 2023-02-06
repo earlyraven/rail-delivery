@@ -10,8 +10,8 @@ public class Company {
     private final String name;
     private final Color color;
     private Map<Point, Point> rails = new HashMap<>();
-    private int trainQ;
-    private int trainR;
+    public int trainQ;
+    public int trainR;
     private List<CargoOrder> orders = new ArrayList<>();
     private int money = 50;
 
@@ -41,6 +41,8 @@ public class Company {
 
         output.add(this.getClass().getName());
         output.add(name);
+        output.add(String.valueOf(trainQ));
+        output.add(String.valueOf(trainR));
         output.add(String.valueOf(money));
 
         return output.toString();
