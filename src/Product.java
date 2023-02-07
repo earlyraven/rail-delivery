@@ -10,9 +10,12 @@ public enum Product {
 
     public final String label;
 
-    public static Product getRandom(){
-        int randomIndex = (int) (Math.random() * values().length);
-        return values()[randomIndex];
+    public static Product getRandomExcluding(Product exclusion) {
+        Product product = values()[(int) (Math.random() * values().length)];
+        if (product == exclusion) {
+            return getRandomExcluding(exclusion);
+        }
+        return product;
     }
 
     private Product() {
