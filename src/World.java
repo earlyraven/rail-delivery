@@ -24,13 +24,11 @@ public class World {
 
         cities = readCitiesFromFile("/assets/data/map-EasternUS.txt").toArray(new City[0]);
         int availableCities = cities.length;
-        if (Game.MAX_PLAYERS < availableCities && companies.size() > availableCities) {
-            Log.debug(Integer.toString(Game.MAX_PLAYERS));
-            Log.debug(Integer.toString(availableCities));
-            throw new RuntimeException("Insufficient cities to allocate a city to each company.");
-        }
-        if (companies.size() > availableCities) {
-            throw new RuntimeException("Too many companies were selected to allocate start cities.");
+        assert(companies.size() <= Game.MAX_PLAYERS);
+        if (Game.MAX_PLAYERS > availableCities) {
+            String message = "Insufficient cities to allocate a city to each company. "
+            + "Max players: " + Game.MAX_PLAYERS + " , starting cities: " + availableCities;
+            throw new RuntimeException(message);
         }
 
         ArrayList<City> candidateStartCities = new ArrayList<>(Arrays.asList(cities));
