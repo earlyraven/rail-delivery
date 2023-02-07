@@ -21,6 +21,7 @@ public class Game implements ILoopable {
     private Renderer renderer;
     private Input input;
     private Overlay overlay;
+    public static final int MAX_PLAYERS = 4;
 
     public Game(boolean graphical) {
         if (graphical) {

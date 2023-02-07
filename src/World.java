@@ -23,13 +23,17 @@ public class World {
         Log.debug("Generating world with " + companies.size() + " companies.");
 
         cities = readCitiesFromFile("/assets/data/map-EasternUS.txt").toArray(new City[0]);
-        ArrayList<City> candidateStartCities = new ArrayList<>(Arrays.asList(cities));
-
-        Log.debug("\nStaring cities:");
-        // Handle this error condition better if possible.
-        if (companies.size() > candidateStartCities.size()) {
-            Log.debug("Insufficient cities to allocate a city to each company.");
+        int availableCities = cities.length;
+        if (Game.MAX_PLAYERS < availableCities && companies.size() > availableCities) {
+            Log.debug(Integer.toString(Game.MAX_PLAYERS));
+            Log.debug(Integer.toString(availableCities));
+            throw new RuntimeException("Insufficient cities to allocate a city to each company.");
         }
+        if (companies.size() > availableCities) {
+            throw new RuntimeException("Too many companies were selected to allocate start cities.");
+        }
+
+        ArrayList<City> candidateStartCities = new ArrayList<>(Arrays.asList(cities));
 
         // Finish initializing Companies.
         Log.debug("\nCompanies (with updated trainQ and trainR)");
@@ -38,8 +42,8 @@ public class World {
             City startingCity = candidateStartCities.get(randomIndex);
             Log.debug(startingCity.toString());
             candidateStartCities.remove(randomIndex);
-            c.trainQ = startingCity.getSpawnPoint().getQ();
-            c.trainR = startingCity.getSpawnPoint().getR();
+            c.trainQ = startingCity.getSpawnPoint().q();
+            c.trainR = startingCity.getSpawnPoint().r();
 
             Log.debug(c.toString());
             Log.debug("");
