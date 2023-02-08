@@ -1,5 +1,0 @@
-To follow this trend, city graphic icon in center would replace the text "City" and would be a seperate image that is overlayed on top.
-
-The city_connect tiles could be mirrored s needed to cover the remaining connection possibilities.  Additionaly, more tiles would be needed to cover other larger cities (ex. 3 tile cities or larger).
-
-Finally, some additional drawing of extra lines would be required to connect city tiles to form one large city.

@@ -90,7 +90,6 @@ public class SpriteBatch extends Mesh {
 
         // Check if we can't fit another four vertices
         if (numIndices / 6 >= size / getVertexBufferStride() / 4) {
-            Log.metric("Overfilled spritebatch (size " + size + "), rendering early");
             render();
         }
 

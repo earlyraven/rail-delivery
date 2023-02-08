@@ -1,3 +1,3 @@
-Map background - public domain, cropped from:
-https://commons.wikimedia.org/wiki/File:US_map_-_rivers_and_lakes.png
+Map background - public domain, cropped and scaled from:
+https://commons.wikimedia.org/wiki/File:1848_Phelps_National_Map_of_the_United_States_(pocket_map)_-_Geographicus_-_UnitedStates-phelps-1848.jpg
 

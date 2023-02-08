@@ -8,17 +8,15 @@ import java.util.Scanner;
 import org.lwjgl.opengl.GL11;
 
 import shadowfox.math.*;
-import traingame.Point;
+import traingame.*;
 import traingame.engine.render.*;
-import traingame.engine.render.SpriteBatch;
-import traingame.engine.render.Texture;
-import traingame.World;
-import traingame.Terrain;
 
 public class Renderer implements IFramebufferSizeListener {
     private static final int HEX_WIDTH = 14;
     private static final int HEX_HEIGHT = 16;
     private static final int HEX_ROW_HEIGHT = 12;
+
+    private static final int STYLE = 0;
 
     private final ShaderProgram shader2D = ShaderProgram.load("/shaders/2d.vsh", "/shaders/2d.fsh");
     private final Vector2f uiDimensions = new Vector2f(1, 1);
@@ -26,8 +24,8 @@ public class Renderer implements IFramebufferSizeListener {
     private final Texture terrainTexture = new Texture("terrain.png");
     private final Texture mapBackground = new Texture("map_background.png");
 
-    private final int MAP_PIXELS_WIDE = 868;
-    private final int MAP_PIXELS_HIGH = 779;
+    private final int MAP_PIXELS_WIDE = 1440;
+    private final int MAP_PIXELS_HIGH = 1080;
 
     private int width;
     private int height;
@@ -79,7 +77,7 @@ public class Renderer implements IFramebufferSizeListener {
 
     private int getSidebarWidth() {
         if (sidebar()) {
-            return 200;
+            return 100;
         }
         return 0;
     }
@@ -88,7 +86,7 @@ public class Renderer implements IFramebufferSizeListener {
         if (sidebar()) {
             return 0;
         }
-        return 200;
+        return 100;
     }
 
     private double mapAspectRatio() {
@@ -152,6 +150,9 @@ public class Renderer implements IFramebufferSizeListener {
         spriteBatch.render();
 
         spriteBatch.setTexture(terrainTexture);
+        final int SPRITE_PADDING = 1;
+        int texY = (HEX_HEIGHT + SPRITE_PADDING) * STYLE;
+        final int SPRITE_COLUMN = HEX_WIDTH + SPRITE_PADDING;
         for (int y = 0; y < world.mapHeight; y++) {
             for (int x = 0; x < world.mapWidth; x++) {
                 Terrain terrain = world.getTerrainXY(x,y);
@@ -159,17 +160,24 @@ public class Renderer implements IFramebufferSizeListener {
                 int locY = getPixelY(x, y);
 
                 int texX = 0;
-                int texY = 0;
                 if (terrain == Terrain.PLAIN) {
-                    texX = 15;
+                    texX = SPRITE_COLUMN * 1;
                 }
                 else if (terrain == Terrain.MOUNTAIN) {
-                    texX = 30;
+                    texX = SPRITE_COLUMN * 2;
                 }
                 else if (terrain == Terrain.FOREST) {
-                    texX = 45;
+                    texX = SPRITE_COLUMN * 3;
                 }
                 spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, texX, texY);
+            }
+        }
+
+        for (City city : world.cities) {
+            for (Point p : city.locations()) {
+                int locX = getPixelX(p.x(), p.y());
+                int locY = getPixelY(p.x(), p.y());
+                spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 75, texY);
             }
         }
 
@@ -177,7 +185,7 @@ public class Renderer implements IFramebufferSizeListener {
         if (highlighted != null) {
             int locX = getPixelX(highlighted.x(), highlighted.y());
             int locY = getPixelY(highlighted.x(), highlighted.y());
-            spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, 0);
+            spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, texY);
         }
 
         spriteBatch.render();

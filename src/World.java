@@ -10,13 +10,12 @@ import java.util.Scanner;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
-    public final int mapWidth = 31;
-    public final int mapHeight = 34;
+    public final int mapWidth = 102;
+    public final int mapHeight = 89;
 
     private Random random = new Random();
-    private final City[] cities;
 
-    //Retrieve file that stores world related info (Cities, Products, etc.)
+    public final City[] cities;
     private Terrain[][] map;
 
     private Point hoverHex = null;
