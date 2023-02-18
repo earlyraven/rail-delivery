@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Company {
-    private final String name;
+    public final String name;
     private final Color color;
-    private Map<Point, Point> rails = new HashMap<>();
+    private List<RailSegment> railNetwork = new ArrayList<>();
     public int trainQ;
     public int trainR;
     private List<CargoOrder> orders = new ArrayList<>();
@@ -35,6 +35,25 @@ public class Company {
         return new Company("Green Company", Color.GREEN);
     }
 
+    public void addRail(RailSegment railSegment) {
+        // External caller should check to make sure rail is not already present.
+        assert(!hasRail(railSegment));
+        railNetwork.add(railSegment);
+    }
+
+    public boolean hasRail(RailSegment railSegment) {
+        for (RailSegment segment : railNetwork) {
+            if (segment.equals(railSegment)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<RailSegment> getRailNetwork() {
+        return railNetwork;
+    }
+
     @Override
     public String toString() {
         List<String> output = new ArrayList<>();
@@ -44,6 +63,7 @@ public class Company {
         output.add(String.valueOf(trainQ));
         output.add(String.valueOf(trainR));
         output.add(String.valueOf(money));
+        output.add(String.valueOf(railNetwork));
 
         return output.toString();
     }
