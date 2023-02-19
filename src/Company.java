@@ -37,13 +37,40 @@ public class Company {
 
     public void addRail(RailSegment railSegment) {
         // External caller should check to make sure rail is not already present.
-        assert(!hasRail(railSegment));
-        railNetwork.add(railSegment);
+        String errorMessage = "Rail is present:  Company: " + name + ", RailSegment: " + railSegment;
+        assert !hasRail(railSegment) : errorMessage;
+        Direction[] primaryDirections = {Direction.EAST, Direction.SOUTHEAST, Direction.SOUTHWEST};
+        RailSegment railToAdd = null;
+        for (Direction direction : primaryDirections) {
+            if (direction.equals(railSegment.direction())) {
+                railNetwork.add(railSegment);
+                break;
+            }
+            else {
+                railNetwork.add(railSegment.opposite());
+                break;
+            }
+        }
+    }
+
+    public void addRailNetwork(List<RailSegment> railNetwork) {
+        for (RailSegment railSegment : railNetwork) {
+            addRail(railSegment);
+        }
     }
 
     public boolean hasRail(RailSegment railSegment) {
         for (RailSegment segment : railNetwork) {
-            if (segment.equals(railSegment)) {
+            if (segment.equals(railSegment) || segment.opposite().equals(railSegment)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean railExists(RailSegment railSegment, List<Company> companies) {
+        for (Company c : companies) {
+            if (c.hasRail(railSegment)) {
                 return true;
             }
         }
