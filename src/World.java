@@ -147,8 +147,6 @@ public class World {
     }
 
     public Point getHoverLocation() {
-// uncomment the line under this to test.
-//        System.out.println("HOVERING OVER: " + hoverHex + "COMPANY CONNECTED: " + isConnected(hoverHex, companies[0]));
         return hoverHex;
     }
 
