@@ -196,7 +196,7 @@ public class Renderer implements IFramebufferSizeListener {
                 else if (rail.direction() == Direction.SOUTHWEST) {
                     int width = 2 * HEX_WIDTH;
                     int height = 2 * HEX_HEIGHT;
-                    spriteBatch.blitStretched(locX + width, locY, -1 * width, height,
+                    spriteBatch.blitStretched(locX + HEX_WIDTH, locY, -1 * width, height,
                                               15, 34, width, height, company.color);
                 }
                 else {
