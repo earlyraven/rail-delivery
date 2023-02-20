@@ -125,6 +125,11 @@ public class World {
         return hoverHex;
     }
 
+    public boolean canBuildFrom(Point point) {
+        // TODO: Give an actual answer, assuming the builder is the company whose turn it is now
+        return true;
+    }
+
     public void setHoverLocation(Point hover) {
         if (hover != null && (hover.x() < 0 || hover.x() >= mapWidth 
                               || hover.y() < 0 || hover.y() >= mapHeight)) {

@@ -209,6 +209,9 @@ public class Renderer implements IFramebufferSizeListener {
         if (highlighted != null) {
             int locX = getPixelX(highlighted.x(), highlighted.y());
             int locY = getPixelY(highlighted.x(), highlighted.y());
+            if (world.canBuildFrom(highlighted)) {
+                spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 90, texY);
+            }
             spriteBatch.blit(locX, locY, HEX_WIDTH, HEX_HEIGHT, 0, texY);
         }
 
