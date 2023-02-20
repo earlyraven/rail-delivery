@@ -4,9 +4,11 @@ import traingame.engine.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
@@ -20,6 +22,7 @@ public class World {
     private Terrain[][] map;
 
     private Point hoverHex = null;
+    private int activeCompanyIndex = 0;
 
     public World(List<Company> companies) {
         Log.debug("Generating world with " + companies.size() + " companies.");
@@ -80,7 +83,7 @@ public class World {
                     //Prepare data to create Cities:
                     String currentCityName = "";
                     Product currentCityExport = null;
-                    List<Point> localPointGroup = new ArrayList<>();
+                    List<Point> currentPointGroup = new ArrayList<>();
 
                     for (int i=0; i<entriesInLine; i++) {
                         if(i==0) {
@@ -96,17 +99,15 @@ public class World {
                                 pointCoordinates[j] = Integer.parseInt(partitionedCoordinateString[j]);
                             }
                             Point somePoint = new Point(pointCoordinates[0], pointCoordinates[1]);
-                            localPointGroup.add(somePoint);
+                            currentPointGroup.add(somePoint);
                         }
                     }
-                    Point[] currentPointGroup = localPointGroup.toArray(new Point[0]);
-
                     //Now use the data to make a city and add it to the City list.
                     Log.debug("");
                     Log.debug("Generating City:");
                     Log.debug("Name: " + currentCityName);
                     Log.debug("Export: " + currentCityExport);
-                    Log.debug("Locations: " + Arrays.toString(currentPointGroup));
+                    Log.debug("Locations: " + currentPointGroup.toString());
                     City currentCity = new City(currentCityName, currentCityExport, currentPointGroup);
                     theCitiesOnMap.add(currentCity);
                 }
@@ -125,9 +126,88 @@ public class World {
         return hoverHex;
     }
 
+    /**
+     * Checks if active company can start building rails from the specified point.
+     * @param point The point to start building rails from.
+     * @return true if the active company can start building rails from the specified point, false otherwise.
+     */
     public boolean canBuildFrom(Point point) {
-        // TODO: Give an actual answer, assuming the builder is the company whose turn it is now
-        return true;
+        Company activeCompany = companies[activeCompanyIndex];
+        return getSharedNetwork(activeCompany).contains(point);
+    }
+
+    private void changeActivePlayer() {
+        activeCompanyIndex++;
+        int playerCount = companies.length;
+        if (activeCompanyIndex > playerCount) {
+            activeCompanyIndex -= playerCount;
+        }
+    }
+
+    private Set<Point> getSharedNetwork(Company company) {
+        Set<Point> sharedNetwork = getDirectlyConnectedPoints(company);
+        List<Company> needTesting = new ArrayList<>(Arrays.asList(companies));
+        needTesting.remove(company);
+
+        boolean detectedOverlap = true;
+        while (detectedOverlap) {
+            detectedOverlap = false;
+            for (Company otherCompany : needTesting) {
+                Set<Point> otherNetwork = getDirectlyConnectedPoints(otherCompany);
+                for (Point point : otherNetwork) {
+                    if (sharedNetwork.contains(point)) {
+                        sharedNetwork.addAll(otherNetwork);
+                        needTesting.remove(otherCompany);
+                        detectedOverlap = true;
+                        break;
+                    }
+                }
+                if (detectedOverlap) {
+                    break;
+                }
+            }
+        }
+        return sharedNetwork;
+    }
+
+    private Set<Point> getDirectlyConnectedPoints(Company company) {
+        Set<Point> connectedPoints = new HashSet<>();
+        for (RailSegment railSegment : company.getRailNetwork()) {
+            connectedPoints.addAll(railSegment.points());
+        }
+
+        // this gets just the starting cities but is no longer needed with the below code unless
+        // unless cities aren't connected by rail.
+        Point startPoint = new Point(company.trainQ, company.trainR);
+        connectedPoints.addAll(getLocationsFromPoint(startPoint));
+
+        // Can likely be made more efficient.
+        // get all the tiles within connected cities to add them.
+        // then add these to connectedPoints.
+        // should work...but inefficient...probably good enough though.
+
+        // TODO - test/verify if this still works for non-directly connected cities.
+        Set<Point> additionalPoints = new HashSet<>();
+        for (City city : cities) {
+            for (Point point : connectedPoints) {
+                boolean cityFound = additionalPoints.addAll(city.getLocationsFromPoint(point));
+                if (cityFound) {
+                    break;
+                }
+            }
+        }
+        connectedPoints.addAll(additionalPoints);
+
+        return connectedPoints;
+    }
+
+    private Set<Point> getLocationsFromPoint(Point point) {
+        Set<Point> locations = new HashSet<>();
+        for (City city : cities) {
+            Set<Point> cityPoints = new HashSet<>(city.getLocationsFromPoint(point));
+            locations.addAll(cityPoints);
+        }
+        return locations;
     }
 
     public void setHoverLocation(Point hover) {
