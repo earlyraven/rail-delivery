@@ -3,7 +3,7 @@ package traingame;
 import java.util.List;
 
 public record RailSegment(Point origin, Direction direction) {
-    private Point destination() {
+    public Point destination() {
         int dest_q = origin.q() + direction.value.q();
         int dest_r = origin.r() + direction.value.r();
         return new Point(dest_q, dest_r);

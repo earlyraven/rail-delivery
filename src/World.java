@@ -4,9 +4,11 @@ import traingame.engine.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
@@ -49,6 +51,10 @@ public class World {
             Log.debug("");
         }
         this.companies = companies.toArray(new Company[0]);
+
+        for (Company company : this.companies) {
+            Log.debug("Connected Points:  Company: " + company.name + ", Points: " + getConnectedPoints(company));
+        }
 
         runTests(); //Once actual display implementation is achieved, this can be removed.
 
@@ -117,11 +123,32 @@ public class World {
         return theCitiesOnMap;
     }
 
+    public Set<Point> getConnectedPoints(Company company) {
+        Set<Point> connectedPoints = new HashSet<>();
+        connectedPoints.add(new Point(company.trainQ, company.trainR));
+        for (RailSegment railSegment : company.getRailNetwork()) {
+            connectedPoints.add(railSegment.origin());
+            connectedPoints.add(railSegment.destination());
+        }
+        return connectedPoints;
+    }
+
+    public boolean isConnected(Point target, Company company) {
+        for (Point point : getConnectedPoints(company)) {
+            if (point.equals(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Terrain getTerrainXY(int x, int y) {
         return map[x][y];
     }
 
     public Point getHoverLocation() {
+// uncomment the line under this to test.
+//        System.out.println("HOVERING OVER: " + hoverHex + "COMPANY CONNECTED: " + isConnected(hoverHex, companies[0]));
         return hoverHex;
     }
 
