@@ -53,6 +53,37 @@ public class World {
         }
         this.companies = companies.toArray(new Company[0]);
 
+        //if all...red
+        if (this.companies.length > 0) {
+            this.companies[0].addRail(new RailSegment(new Point(23, 26), Direction.EAST));
+            this.companies[0].addRail(new RailSegment(new Point(28, 36), Direction.EAST));
+            this.companies[0].addRail(new RailSegment(new Point(23, 26), Direction.SOUTHEAST));
+            this.companies[0].addRail(new RailSegment(new Point(29, 36), Direction.SOUTHEAST));
+            this.companies[0].addRail(new RailSegment(new Point(30, 35), Direction.SOUTHWEST));
+            this.companies[0].addRail(new RailSegment(new Point(31, 34), Direction.SOUTHWEST));
+        }
+        //if all...green
+        if (this.companies.length > 1) {
+            this.companies[1].addRail(new RailSegment(new Point(12, 6), Direction.EAST));
+            this.companies[1].addRail(new RailSegment(new Point(18, 9), Direction.EAST));
+        }
+        //if all...blue.
+        if (this.companies.length > 2) {
+            this.companies[2].addRail(new RailSegment(new Point(2, 6), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(9, 9), Direction.SOUTHWEST));
+
+            this.companies[2].addRail(new RailSegment(new Point(32, 33), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(33, 32), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(34, 31), Direction.SOUTHWEST));
+        }
+        //if all...yellow.
+        if (this.companies.length > 3) {
+            this.companies[3].addRail(new RailSegment(new Point(35, 30), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(36, 29), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(37, 28), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(38, 27), Direction.SOUTHWEST));
+        }
+
         runTests(); //Once actual display implementation is achieved, this can be removed.
 
 
@@ -148,25 +179,20 @@ public class World {
         Set<Point> sharedNetwork = getDirectlyConnectedPoints(company);
         List<Company> needTesting = new ArrayList<>(Arrays.asList(companies));
         needTesting.remove(company);
+        //^^starts with all companies except current
 
-        boolean detectedOverlap = true;
-        while (detectedOverlap) {
-            detectedOverlap = false;
+        System.out.println(needTesting.size());
+
+        boolean canExpand = true;
+        while (canExpand) {
             for (Company otherCompany : needTesting) {
-                Set<Point> otherNetwork = getDirectlyConnectedPoints(otherCompany);
-                for (Point point : otherNetwork) {
-                    if (sharedNetwork.contains(point)) {
-                        sharedNetwork.addAll(otherNetwork);
-                        needTesting.remove(otherCompany);
-                        detectedOverlap = true;
-                        break;
-                    }
-                }
-                if (detectedOverlap) {
-                    break;
+                //test if each company overlaps
+                if (company.isConnectedTo(otherCompany)) {
+                    System.out.println("there is a connection.... " + company.name + " - " + otherCompany.name);
                 }
             }
         }
+        System.out.println("");
         return sharedNetwork;
     }
 

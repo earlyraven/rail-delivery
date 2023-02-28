@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+// narrow down later.
+import java.util.*;
+
 public class Company {
     public final String name;
     public final Color color;
@@ -50,6 +53,28 @@ public class Company {
 
     public List<RailSegment> getRailNetwork() {
         return railNetwork;
+    }
+
+    private Set<Point> getNetworkConnectionPoints() {
+        Set<Point> thePoints = new HashSet<>();
+        for (RailSegment railSegment : railNetwork) {
+            thePoints.addAll(railSegment.points());
+        }
+        // also get city points similarly.
+        //code here.
+        return thePoints;
+    }
+
+    public boolean isConnectedTo(Company company) {
+        Set<Point> copyOfSet = new HashSet<>(this.getNetworkConnectionPoints());
+
+        int startingSize = copyOfSet.size();
+        copyOfSet.removeAll(company.getNetworkConnectionPoints());
+        if (copyOfSet.size() < startingSize) {
+            // if there was a change in size, it means there was an overlap.
+            return true;
+        }
+        return false;
     }
 
     @Override
