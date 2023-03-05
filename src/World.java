@@ -69,19 +69,21 @@ public class World {
         }
         //if all...blue.
         if (this.companies.length > 2) {
-            this.companies[2].addRail(new RailSegment(new Point(2, 6), Direction.SOUTHWEST));
-            this.companies[2].addRail(new RailSegment(new Point(9, 9), Direction.SOUTHWEST));
-
-            this.companies[2].addRail(new RailSegment(new Point(32, 33), Direction.SOUTHWEST));
-            this.companies[2].addRail(new RailSegment(new Point(33, 32), Direction.SOUTHWEST));
-            this.companies[2].addRail(new RailSegment(new Point(34, 31), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(35, 30), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(36, 29), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(37, 28), Direction.SOUTHWEST));
+            this.companies[2].addRail(new RailSegment(new Point(38, 27), Direction.SOUTHWEST));
         }
         //if all...yellow.
         if (this.companies.length > 3) {
-            this.companies[3].addRail(new RailSegment(new Point(35, 30), Direction.SOUTHWEST));
-            this.companies[3].addRail(new RailSegment(new Point(36, 29), Direction.SOUTHWEST));
-            this.companies[3].addRail(new RailSegment(new Point(37, 28), Direction.SOUTHWEST));
-            this.companies[3].addRail(new RailSegment(new Point(38, 27), Direction.SOUTHWEST));
+            //NOTE: If yellow is connected to Green's start city, then green will be considered to be connected
+            // as well.
+            this.companies[3].addRail(new RailSegment(new Point(2, 6), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(9, 9), Direction.SOUTHWEST));
+
+            this.companies[3].addRail(new RailSegment(new Point(32, 33), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(33, 32), Direction.SOUTHWEST));
+            this.companies[3].addRail(new RailSegment(new Point(34, 31), Direction.SOUTHWEST));
         }
 
         runTests(); //Once actual display implementation is achieved, this can be removed.
@@ -164,6 +166,11 @@ public class World {
      */
     public boolean canBuildFrom(Point point) {
         Company activeCompany = companies[activeCompanyIndex];
+        for (Company theCompany : companies) {
+            if (getDirectlyConnectedPoints(theCompany).contains(point)) {
+                Log.debug("OWNER: " + theCompany.name);
+            }
+        }
         return getSharedNetwork(activeCompany).contains(point);
     }
 
@@ -181,18 +188,40 @@ public class World {
         needTesting.remove(company);
         //^^starts with all companies except current
 
-        System.out.println(needTesting.size());
+        List<Set<Point>> otherNetworkPointSets = new ArrayList<>();
+        for (Company c : needTesting) {
+            otherNetworkPointSets.add(getDirectlyConnectedPoints(c));
+        }
 
-        boolean canExpand = true;
-        while (canExpand) {
-            for (Company otherCompany : needTesting) {
-                //test if each company overlaps
-                if (company.isConnectedTo(otherCompany)) {
-                    System.out.println("there is a connection.... " + company.name + " - " + otherCompany.name);
+        // Repetition is needed to ensure that order of connections does not matter.
+        int otherNetworkCount = otherNetworkPointSets.size();
+        System.out.println(otherNetworkCount);
+
+        for (int i=0; i<otherNetworkCount; i++) {
+            Log.debug(String.valueOf(otherNetworkPointSets.size()) + " is the amount of other companies.");
+            Log.debug(String.valueOf(i) + " is the iteration loop.");
+            int oldNetworkSize = sharedNetwork.size();
+            for (Set<Point> otherNetworkPointSet : otherNetworkPointSets) {
+                Set<Point> pointCopy = new HashSet<>(otherNetworkPointSet);
+                int startingSize = pointCopy.size();
+                pointCopy.removeAll(sharedNetwork);
+                int afterRemovalSize = pointCopy.size();
+                if (afterRemovalSize < startingSize) {
+                    //there is a connection, so add it to the network.
+                    boolean sharedNetworkChangeOccured = sharedNetwork.addAll(otherNetworkPointSet);
+
+                    if (sharedNetworkChangeOccured) {
+                        Log.debug("Network extended");
+                        otherNetworkPointSets.remove(otherNetworkPointSet);
+                        i = 0;
+                        break;
+                    }
                 }
             }
         }
-        System.out.println("");
+        for (Company c : companies) {
+            System.out.println(c.name + " -- " + c.trainQ + ", " + c.trainR);
+        }
         return sharedNetwork;
     }
 

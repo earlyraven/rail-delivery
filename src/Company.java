@@ -61,7 +61,9 @@ public class Company {
             thePoints.addAll(railSegment.points());
         }
         // also get city points similarly.
-        //code here.
+        // perhaps Company should store a list of cities it's connected to for easy reference here?
+        //code here. ^^ would require the above, as Company does not know about world or cities in existance.
+
         return thePoints;
     }
 
