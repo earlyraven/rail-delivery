@@ -67,16 +67,15 @@ public class Company {
         return thePoints;
     }
 
+    /**
+     * Checks if this company is connected to the given company through their rail networks.
+     * @param company The company to check connection with.
+     * @return true if an overlap exists in their rail networks; false otherwise.
+     */
     public boolean isConnectedTo(Company company) {
         Set<Point> copyOfSet = new HashSet<>(this.getNetworkConnectionPoints());
-
-        int startingSize = copyOfSet.size();
-        copyOfSet.removeAll(company.getNetworkConnectionPoints());
-        if (copyOfSet.size() < startingSize) {
-            // if there was a change in size, it means there was an overlap.
-            return true;
-        }
-        return false;
+        // Overlap results in true; false otherwise.
+        return copyOfSet.removeAll(company.getNetworkConnectionPoints());
     }
 
     @Override

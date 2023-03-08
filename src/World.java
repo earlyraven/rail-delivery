@@ -240,8 +240,6 @@ public class World {
         // get all the tiles within connected cities to add them.
         // then add these to connectedPoints.
         // should work...but inefficient...probably good enough though.
-
-        // TODO - test/verify if this still works for non-directly connected cities.
         Set<Point> additionalPoints = new HashSet<>();
         for (City city : cities) {
             for (Point point : connectedPoints) {
