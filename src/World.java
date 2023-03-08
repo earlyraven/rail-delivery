@@ -166,11 +166,6 @@ public class World {
      */
     public boolean canBuildFrom(Point point) {
         Company activeCompany = companies[activeCompanyIndex];
-        for (Company theCompany : companies) {
-            if (getDirectlyConnectedPoints(theCompany).contains(point)) {
-                Log.debug("OWNER: " + theCompany.name);
-            }
-        }
         return getSharedNetwork(activeCompany).contains(point);
     }
 
@@ -195,32 +190,22 @@ public class World {
 
         // Repetition is needed to ensure that order of connections does not matter.
         int otherNetworkCount = otherNetworkPointSets.size();
-        System.out.println(otherNetworkCount);
-
         for (int i=0; i<otherNetworkCount; i++) {
-            Log.debug(String.valueOf(otherNetworkPointSets.size()) + " is the amount of other companies.");
-            Log.debug(String.valueOf(i) + " is the iteration loop.");
             int oldNetworkSize = sharedNetwork.size();
             for (Set<Point> otherNetworkPointSet : otherNetworkPointSets) {
                 Set<Point> pointCopy = new HashSet<>(otherNetworkPointSet);
-                int startingSize = pointCopy.size();
-                pointCopy.removeAll(sharedNetwork);
-                int afterRemovalSize = pointCopy.size();
-                if (afterRemovalSize < startingSize) {
+                boolean removalOccured = pointCopy.removeAll(sharedNetwork);
+                if (removalOccured) {
                     //there is a connection, so add it to the network.
                     boolean sharedNetworkChangeOccured = sharedNetwork.addAll(otherNetworkPointSet);
 
                     if (sharedNetworkChangeOccured) {
-                        Log.debug("Network extended");
                         otherNetworkPointSets.remove(otherNetworkPointSet);
                         i = 0;
                         break;
                     }
                 }
             }
-        }
-        for (Company c : companies) {
-            System.out.println(c.name + " -- " + c.trainQ + ", " + c.trainR);
         }
         return sharedNetwork;
     }

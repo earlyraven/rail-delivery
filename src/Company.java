@@ -67,16 +67,16 @@ public class Company {
         return thePoints;
     }
 
-    /**
-     * Checks if this company is connected to the given company through their rail networks.
-     * @param company The company to check connection with.
-     * @return true if an overlap exists in their rail networks; false otherwise.
-     */
-    public boolean isConnectedTo(Company company) {
-        Set<Point> copyOfSet = new HashSet<>(this.getNetworkConnectionPoints());
-        // Overlap results in true; false otherwise.
-        return copyOfSet.removeAll(company.getNetworkConnectionPoints());
-    }
+    // /**
+    //  * Checks if this company is connected to the given company through their rail networks.
+    //  * @param company The company to check connection with.
+    //  * @return true if an overlap exists in their rail networks; false otherwise.
+    //  */
+    // public boolean isConnectedTo(Company company) {
+    //     Set<Point> copyOfSet = new HashSet<>(this.getNetworkConnectionPoints());
+    //     // Overlap results in true; false otherwise.
+    //     return copyOfSet.removeAll(company.getNetworkConnectionPoints());
+    // }
 
     @Override
     public String toString() {
