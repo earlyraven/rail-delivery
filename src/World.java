@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
+import traingame.util.SetHelper;
 
 public class World {
     // Map size in amount of hexagonal tiles in each dimension.
@@ -180,8 +181,7 @@ public class World {
     private Set<Point> getSharedNetwork(Company company) {
         Set<Point> sharedNetwork = getDirectlyConnectedPoints(company);
         List<Company> needTesting = new ArrayList<>(Arrays.asList(companies));
-        needTesting.remove(company);
-        //^^starts with all companies except current
+        needTesting.remove(company); // Starts with all companies except current.
 
         List<Set<Point>> otherNetworkPointSets = new ArrayList<>();
         for (Company c : needTesting) {
@@ -191,15 +191,12 @@ public class World {
         // Repetition is needed to ensure that order of connections does not matter.
         int otherNetworkCount = otherNetworkPointSets.size();
         for (int i=0; i<otherNetworkCount; i++) {
-            int oldNetworkSize = sharedNetwork.size();
             for (Set<Point> otherNetworkPointSet : otherNetworkPointSets) {
-                Set<Point> pointCopy = new HashSet<>(otherNetworkPointSet);
-                boolean removalOccured = pointCopy.removeAll(sharedNetwork);
-                if (removalOccured) {
-                    //there is a connection, so add it to the network.
+                if (SetHelper.hasOverlap(otherNetworkPointSet, sharedNetwork)) {
+                    // There is a connection, so add it to the network, and
+                    // keep track if any change occured so we know if we can exit loop early.
                     boolean sharedNetworkChangeOccured = sharedNetwork.addAll(otherNetworkPointSet);
-
-                    if (sharedNetworkChangeOccured) {
+                    if(sharedNetworkChangeOccured) {
                         otherNetworkPointSets.remove(otherNetworkPointSet);
                         i = 0;
                         break;
@@ -216,15 +213,14 @@ public class World {
             connectedPoints.addAll(railSegment.points());
         }
 
-        // this gets just the starting cities but is no longer needed with the below code unless
-        // unless cities aren't connected by rail.
+        // This gets just the starting cities but is no longer needed with the below code unless
+        // unless cities aren't connected by rail (as is currently the case).  This section can be
+        // removed once starting cities and rails are setup properly.
         Point startPoint = new Point(company.trainQ, company.trainR);
         connectedPoints.addAll(getLocationsFromPoint(startPoint));
 
-        // Can likely be made more efficient.
-        // get all the tiles within connected cities to add them.
-        // then add these to connectedPoints.
-        // should work...but inefficient...probably good enough though.
+        // Optimization: --> Probably restructure this to have company just keep track of the cities
+        // that it is connected to (and reference that) rather than search through the whole city space.
         Set<Point> additionalPoints = new HashSet<>();
         for (City city : cities) {
             for (Point point : connectedPoints) {
@@ -235,7 +231,6 @@ public class World {
             }
         }
         connectedPoints.addAll(additionalPoints);
-
         return connectedPoints;
     }
 
