@@ -170,14 +170,6 @@ public class World {
         return getSharedNetwork(activeCompany).contains(point);
     }
 
-    private void changeActivePlayer() {
-        activeCompanyIndex++;
-        int playerCount = companies.length;
-        if (activeCompanyIndex > playerCount) {
-            activeCompanyIndex -= playerCount;
-        }
-    }
-
     private Set<Point> getSharedNetwork(Company company) {
         Set<Point> sharedNetwork = getDirectlyConnectedPoints(company);
         List<Company> needTesting = new ArrayList<>(Arrays.asList(companies));
