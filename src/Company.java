@@ -2,9 +2,10 @@ package traingame;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+// narrow down later.
+import java.util.*;
 
 public class Company {
     public final String name;
@@ -52,6 +53,18 @@ public class Company {
 
     public List<RailSegment> getRailNetwork() {
         return railNetwork;
+    }
+
+    private Set<Point> getNetworkConnectionPoints() {
+        Set<Point> thePoints = new HashSet<>();
+        for (RailSegment railSegment : railNetwork) {
+            thePoints.addAll(railSegment.points());
+        }
+        // also get city points similarly.
+        // perhaps Company should store a list of cities it's connected to for easy reference here?
+        //code here. ^^ would require the above, as Company does not know about world or cities in existance.
+
+        return thePoints;
     }
 
     @Override
